@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Ирина Лебедева](https://up.htmlacademy.ru/ecmascript/16/user/1265881).
-* Наставник: `Неизвестно`.
+* Наставник: [Михаил Кислый](https://htmlacademy.ru/profile/smart-grizzly).
 
 ---
 
