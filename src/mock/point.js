@@ -5,15 +5,15 @@ import {getRandomElementFromArray} from '../utils/get-random-array-element.js';
 import dayjs from 'dayjs';
 
 const types = [
-  'Taxi',
-  'Bus',
-  'Train',
-  'Ship',
-  'Drive',
-  'Flight',
-  'Check-in',
-  'Sightseeing',
-  'Restaurant',
+  'taxi',
+  'bus',
+  'train',
+  'ship',
+  'drive',
+  'flight',
+  'check-in',
+  'sightseeing',
+  'restaurant',
 ];
 
 const towns = [
@@ -99,4 +99,4 @@ const generatePoint = (id) => {
   };
 };
 
-export {generatePoint};
+export {generatePoint, types, towns};
