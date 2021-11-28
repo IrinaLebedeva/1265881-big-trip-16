@@ -13,7 +13,7 @@ const titles = [
 const OFFERS_COUNT_MIN = 0;
 const OFFERS_COUNT_MAX = 5;
 const PRICE_MIN = 1;
-const PRICE_MAX = 777;
+const PRICE_MAX = 99;
 
 const shuffledTitles = shuffleArray(titles);
 

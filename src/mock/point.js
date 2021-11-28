@@ -32,10 +32,10 @@ const DESTINATION_PHOTOS_COUNT_MIN = 1;
 const DESTINATION_PHOTOS_COUNT_MAX = 5;
 const PHOTOS_URL_TEMPLATE = 'http://picsum.photos/248/152?r=';
 const PRICE_MIN = 1;
-const PRICE_MAX = 10000;
+const PRICE_MAX = 1000;
 const DAYS_GAP = 7;
 const MINUTES_GAP_MIN = 10;
-const MINUTES_GAP_MAX = 24*60*60;
+const MINUTES_GAP_MAX = 24*60*DAYS_GAP;
 
 const generateType = () => getRandomElementFromArray(types);
 
@@ -86,7 +86,6 @@ const generateDateTo = (dateFrom, dateGapInMinutes) => dayjs(dateFrom).add(dateG
 
 const generatePoint = (id) => {
   const dateFrom = generateDateFrom();
-  const dateGapInMinutes = getRandomInteger(MINUTES_GAP_MIN, MINUTES_GAP_MAX);
   return {
     id,
     type: generateType(),
@@ -96,8 +95,7 @@ const generatePoint = (id) => {
     basePrice: generatePrice(),
     isFavorite: generateIsFavorite(),
     dateFrom,
-    dateTo: generateDateTo(dateFrom, dateGapInMinutes),
-    dateGapInMinutes,
+    dateTo: generateDateTo(dateFrom, getRandomInteger(MINUTES_GAP_MIN, MINUTES_GAP_MAX)),
   };
 };
 
