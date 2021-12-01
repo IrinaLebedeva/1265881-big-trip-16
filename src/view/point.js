@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import {createElement} from '../render.js';
 const DATE_FORMAT = 'YYYY-MM-DD';
 const DATE_VIEW_FORMAT = 'MMM D';
 const TIME_FORMAT = 'HH:mm';
@@ -85,4 +86,28 @@ const createPointTemplate = (point) => {
   </div>`;
 };
 
-export {createPointTemplate};
+class Point {
+  #element = null;
+  #point = null
+
+  constructor(point) {
+    this.#point = point;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+    return this.#element;
+  }
+
+  get template() {
+    return createPointTemplate(this.#point);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export {Point};

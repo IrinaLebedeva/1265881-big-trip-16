@@ -3,9 +3,9 @@ import {HeaderMenu} from './view/header-menu.js';
 import {Filters} from './view/filters.js';
 import {Sort} from './view/sort.js';
 import {createPointsListTemplate} from './view/points-list.js';
-import {createPointsListItemTemplate} from './view/points-list-item.js';
-import {createPointTemplate} from './view/point.js';
-import {createEditPointTemplate} from './view/edit-point.js';
+import {PointsListItem} from './view/points-list-item.js';
+import {Point} from './view/point.js';
+import {EditPoint} from './view/edit-point.js';
 import {generatePoint} from './mock/point.js';
 
 const POINTS_COUNT = 15;
@@ -26,7 +26,8 @@ renderTemplate(eventsContainerElement, RenderPosition.BEFOREEND, createPointsLis
 
 const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
 
-renderTemplate(eventsListElement, RenderPosition.BEFOREEND, createPointsListItemTemplate(createEditPointTemplate(points[0])));
+//renderTemplate(eventsListElement, RenderPosition.BEFOREEND, createPointsListItemTemplate(createEditPointTemplate(points[0])));
+renderElement(eventsListElement, RenderPosition.BEFOREEND, new PointsListItem(new EditPoint(points[0]).template).element);
 for (let i = 1; i < POINTS_COUNT; i++) {
-  renderTemplate(eventsListElement, RenderPosition.BEFOREEND, createPointsListItemTemplate(createPointTemplate(points[i])));
+  renderElement(eventsListElement, RenderPosition.BEFOREEND, new PointsListItem(new Point(points[i]).template).element);
 }

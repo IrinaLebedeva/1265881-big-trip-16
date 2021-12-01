@@ -1,5 +1,6 @@
 import {types, towns} from '../mock/point.js';
 import dayjs from 'dayjs';
+import {createElement} from '../render.js';
 
 const DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
 
@@ -146,4 +147,29 @@ const createEditPointTemplate = (point = {}) => {
   </form>`;
 };
 
-export {createEditPointTemplate};
+
+class EditPoint {
+  #element = null;
+  #point = null
+
+  constructor(point) {
+    this.#point = point;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+    return this.#element;
+  }
+
+  get template() {
+    return createEditPointTemplate(this.#point);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export {EditPoint};
