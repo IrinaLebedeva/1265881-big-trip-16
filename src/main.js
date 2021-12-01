@@ -1,5 +1,5 @@
-import {renderTemplate, RenderPosition} from './render.js';
-import {createHeaderMenuTemplate} from './view/header-menu.js';
+import {renderTemplate, RenderPosition, renderElement} from './render.js';
+import {HeaderMenu} from './view/header-menu.js';
 import {createFiltersTemplate} from './view/filters.js';
 import {createSortTemplate} from './view/sort.js';
 import {createPointsListTemplate} from './view/points-list.js';
@@ -19,7 +19,7 @@ const filtersContainerElement = headerElement.querySelector('.trip-controls__fil
 const mainElement = document.querySelector('.page-main');
 const eventsContainerElement = mainElement.querySelector('.trip-events');
 
-renderTemplate(navigationContainerElement, RenderPosition.BEFOREEND, createHeaderMenuTemplate());
+renderElement(navigationContainerElement, RenderPosition.BEFOREEND, new HeaderMenu().element);
 renderTemplate(filtersContainerElement, RenderPosition.BEFOREEND, createFiltersTemplate());
 renderTemplate(eventsContainerElement, RenderPosition.BEFOREEND, createSortTemplate());
 renderTemplate(eventsContainerElement, RenderPosition.BEFOREEND, createPointsListTemplate());
