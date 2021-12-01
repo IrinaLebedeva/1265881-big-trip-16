@@ -1,8 +1,8 @@
-import {renderTemplate, RenderPosition, renderElement} from './render.js';
+import {RenderPosition, render} from './render.js';
 import {HeaderMenu} from './view/header-menu.js';
 import {Filters} from './view/filters.js';
 import {Sort} from './view/sort.js';
-import {createPointsListTemplate} from './view/points-list.js';
+import {PointsList} from './view/points-list.js';
 import {PointsListItem} from './view/points-list-item.js';
 import {Point} from './view/point.js';
 import {EditPoint} from './view/edit-point.js';
@@ -19,15 +19,16 @@ const filtersContainerElement = headerElement.querySelector('.trip-controls__fil
 const mainElement = document.querySelector('.page-main');
 const eventsContainerElement = mainElement.querySelector('.trip-events');
 
-renderElement(navigationContainerElement, RenderPosition.BEFOREEND, new HeaderMenu().element);
-renderElement(filtersContainerElement, RenderPosition.BEFOREEND, new Filters().element);
-renderElement(eventsContainerElement, RenderPosition.BEFOREEND, new Sort().element);
-renderTemplate(eventsContainerElement, RenderPosition.BEFOREEND, createPointsListTemplate());
+render(navigationContainerElement, RenderPosition.BEFOREEND, new HeaderMenu().element);
+render(filtersContainerElement, RenderPosition.BEFOREEND, new Filters().element);
+render(eventsContainerElement, RenderPosition.BEFOREEND, new Sort().element);
+render(eventsContainerElement, RenderPosition.BEFOREEND, new PointsList().element);
 
 const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
 
-//renderTemplate(eventsListElement, RenderPosition.BEFOREEND, createPointsListItemTemplate(createEditPointTemplate(points[0])));
-renderElement(eventsListElement, RenderPosition.BEFOREEND, new PointsListItem(new EditPoint(points[0]).template).element);
+const pointListItemsFragment = document.createDocumentFragment();
+pointListItemsFragment.append(new PointsListItem(new EditPoint(points[0]).template).element);
 for (let i = 1; i < POINTS_COUNT; i++) {
-  renderElement(eventsListElement, RenderPosition.BEFOREEND, new PointsListItem(new Point(points[i]).template).element);
+  pointListItemsFragment.append(new PointsListItem(new Point(points[i]).template).element);
 }
+render(eventsListElement, RenderPosition.BEFOREEND, pointListItemsFragment);
