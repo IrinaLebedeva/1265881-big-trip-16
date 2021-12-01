@@ -23,12 +23,45 @@ render(navigationContainerElement, RenderPosition.BEFOREEND, new HeaderMenu().el
 render(filtersContainerElement, RenderPosition.BEFOREEND, new Filters().element);
 render(eventsContainerElement, RenderPosition.BEFOREEND, new Sort().element);
 render(eventsContainerElement, RenderPosition.BEFOREEND, new PointsList().element);
-
 const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
 
-const pointListItemsFragment = document.createDocumentFragment();
-pointListItemsFragment.append(new PointsListItem(new EditPoint(points[0]).template).element);
-for (let i = 1; i < POINTS_COUNT; i++) {
-  pointListItemsFragment.append(new PointsListItem(new Point(points[i]).template).element);
+const renderPoint = (pointsList, pointItem) => {
+  const point = new Point(pointItem);
+  const pointListItem = new PointsListItem(point.template);
+  const editPoint = new EditPoint(pointItem);
+  const pointEditListItem = new PointsListItem(editPoint.template);
+
+  const replacePointToForm = () => {
+    pointsList.replaceChild(pointEditListItem.element, pointListItem.element);
+  };
+
+  const replaceFormToPoint = () => {
+    pointsList.replaceChild(pointListItem.element, pointEditListItem.element);
+  };
+
+  const removeEditPoint = () => {
+    pointsList.removeChild(pointEditListItem.element);
+  };
+
+  pointListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replacePointToForm();
+  });
+
+  pointEditListItem.element.querySelector('.event__save-btn').addEventListener('click', () => {
+    replaceFormToPoint();
+  });
+
+  pointEditListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replaceFormToPoint();
+  });
+
+  pointEditListItem.element.querySelector('.event__reset-btn').addEventListener('click', () => {
+    removeEditPoint();
+  });
+
+  render(pointsList, RenderPosition.BEFOREEND, pointListItem.element);
+};
+
+for (const point of points) {
+  renderPoint(eventsListElement, point);
 }
-render(eventsListElement, RenderPosition.BEFOREEND, pointListItemsFragment);
