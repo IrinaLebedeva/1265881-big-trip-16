@@ -39,24 +39,36 @@ const renderPoint = (pointsList, pointItem) => {
     pointsList.replaceChild(pointListItem.element, pointEditListItem.element);
   };
 
+  const onEscapeKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      replaceFormToPoint();
+      document.removeEventListener('keydown', onEscapeKeyDown);
+    }
+  };
+
   const removeEditPoint = () => {
     pointsList.removeChild(pointEditListItem.element);
   };
 
   pointListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
     replacePointToForm();
+    document.addEventListener('keydown', onEscapeKeyDown);
   });
 
   pointEditListItem.element.querySelector('.event__save-btn').addEventListener('click', () => {
     replaceFormToPoint();
+    document.removeEventListener('keydown', onEscapeKeyDown);
   });
 
   pointEditListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
     replaceFormToPoint();
+    document.removeEventListener('keydown', onEscapeKeyDown);
   });
 
   pointEditListItem.element.querySelector('.event__reset-btn').addEventListener('click', () => {
     removeEditPoint();
+    document.removeEventListener('keydown', onEscapeKeyDown);
   });
 
   render(pointsList, RenderPosition.BEFOREEND, pointListItem.element);
