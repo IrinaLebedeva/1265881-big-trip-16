@@ -1,7 +1,7 @@
 import {renderTemplate, RenderPosition, renderElement} from './render.js';
 import {HeaderMenu} from './view/header-menu.js';
 import {createFiltersTemplate} from './view/filters.js';
-import {createSortTemplate} from './view/sort.js';
+import {Sort} from './view/sort.js';
 import {createPointsListTemplate} from './view/points-list.js';
 import {createPointsListItemTemplate} from './view/points-list-item.js';
 import {createPointTemplate} from './view/point.js';
@@ -21,7 +21,7 @@ const eventsContainerElement = mainElement.querySelector('.trip-events');
 
 renderElement(navigationContainerElement, RenderPosition.BEFOREEND, new HeaderMenu().element);
 renderTemplate(filtersContainerElement, RenderPosition.BEFOREEND, createFiltersTemplate());
-renderTemplate(eventsContainerElement, RenderPosition.BEFOREEND, createSortTemplate());
+renderElement(eventsContainerElement, RenderPosition.BEFOREEND, new Sort().element);
 renderTemplate(eventsContainerElement, RenderPosition.BEFOREEND, createPointsListTemplate());
 
 const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
