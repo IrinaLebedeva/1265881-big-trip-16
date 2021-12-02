@@ -1,4 +1,5 @@
 import {EditPoint} from './view/edit-point.js';
+import {EmptyPointsListMessage} from './view/empty-points-list-message.js';
 import {Filters} from './view/filters.js';
 import {generatePoint} from './mock/point.js';
 import {HeaderMenu} from './view/header-menu.js';
@@ -22,9 +23,6 @@ const eventsContainerElement = mainElement.querySelector('.trip-events');
 
 renderElement(navigationContainerElement, new HeaderMenu().element);
 renderElement(filtersContainerElement, new Filters().element);
-renderElement(eventsContainerElement, new Sort().element);
-renderElement(eventsContainerElement, new PointsList().element);
-const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
 
 /**
  * @param {HTMLElement} pointsList
@@ -79,6 +77,13 @@ const renderPoint = (pointsList, pointItem) => {
   renderElement(pointsList, pointListItem.element);
 };
 
-for (const point of points) {
-  renderPoint(eventsListElement, point);
+if (!points.length) {
+  renderElement(eventsContainerElement, new EmptyPointsListMessage().element);
+} else {
+  renderElement(eventsContainerElement, new Sort().element);
+  renderElement(eventsContainerElement, new PointsList().element);
+  const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
+  for (const point of points) {
+    renderPoint(eventsListElement, point);
+  }
 }
