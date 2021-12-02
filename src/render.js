@@ -5,6 +5,11 @@ const RenderPosition = {
   AFTEREND: 'afterend',
 };
 
+/**
+ * @param {HTMLElement} container
+ * @param {HTMLElement} element
+ * @param {String} position
+ */
 const renderElement = (container, element, position = RenderPosition.BEFOREEND) => {
   switch (position) {
     case RenderPosition.BEFOREBEGIN:
@@ -24,6 +29,10 @@ const renderElement = (container, element, position = RenderPosition.BEFOREEND) 
   }
 };
 
+/**
+ * @param {String} template
+ * @returns {ChildNode}
+ */
 const createElement = (template) => {
   const container = document.createElement('div');
   container.innerHTML = template;

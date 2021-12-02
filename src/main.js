@@ -26,6 +26,10 @@ renderElement(eventsContainerElement, new Sort().element);
 renderElement(eventsContainerElement, new PointsList().element);
 const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
 
+/**
+ * @param {HTMLElement} pointsList
+ * @param {Object} pointItem
+ */
 const renderPoint = (pointsList, pointItem) => {
   const point = new Point(pointItem);
   const pointListItem = new PointsListItem(point.template);
