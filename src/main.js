@@ -1,12 +1,13 @@
-import {RenderPosition, render} from './render.js';
-import {HeaderMenu} from './view/header-menu.js';
+import {EditPoint} from './view/edit-point.js';
 import {Filters} from './view/filters.js';
-import {Sort} from './view/sort.js';
+import {generatePoint} from './mock/point.js';
+import {HeaderMenu} from './view/header-menu.js';
+import {isEscapeEvent} from './utils/detect-event.js';
 import {PointsList} from './view/points-list.js';
 import {PointsListItem} from './view/points-list-item.js';
 import {Point} from './view/point.js';
-import {EditPoint} from './view/edit-point.js';
-import {generatePoint} from './mock/point.js';
+import {renderElement} from './render.js';
+import {Sort} from './view/sort.js';
 
 const POINTS_COUNT = 15;
 
@@ -19,10 +20,10 @@ const filtersContainerElement = headerElement.querySelector('.trip-controls__fil
 const mainElement = document.querySelector('.page-main');
 const eventsContainerElement = mainElement.querySelector('.trip-events');
 
-render(navigationContainerElement, RenderPosition.BEFOREEND, new HeaderMenu().element);
-render(filtersContainerElement, RenderPosition.BEFOREEND, new Filters().element);
-render(eventsContainerElement, RenderPosition.BEFOREEND, new Sort().element);
-render(eventsContainerElement, RenderPosition.BEFOREEND, new PointsList().element);
+renderElement(navigationContainerElement, new HeaderMenu().element);
+renderElement(filtersContainerElement, new Filters().element);
+renderElement(eventsContainerElement, new Sort().element);
+renderElement(eventsContainerElement, new PointsList().element);
 const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
 
 const renderPoint = (pointsList, pointItem) => {
@@ -40,7 +41,7 @@ const renderPoint = (pointsList, pointItem) => {
   };
 
   const onEscapeKeyDown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (isEscapeEvent(evt)) {
       evt.preventDefault();
       replaceFormToPoint();
       document.removeEventListener('keydown', onEscapeKeyDown);
@@ -71,7 +72,7 @@ const renderPoint = (pointsList, pointItem) => {
     document.removeEventListener('keydown', onEscapeKeyDown);
   });
 
-  render(pointsList, RenderPosition.BEFOREEND, pointListItem.element);
+  renderElement(pointsList, pointListItem.element);
 };
 
 for (const point of points) {

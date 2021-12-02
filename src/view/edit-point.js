@@ -1,6 +1,9 @@
-import {types, towns} from '../mock/point.js';
-import dayjs from 'dayjs';
 import {createElement} from '../render.js';
+import dayjs from 'dayjs';
+import {
+  towns,
+  types,
+} from '../mock/point.js';
 
 const DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
 

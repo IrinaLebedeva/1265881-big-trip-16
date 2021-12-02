@@ -1,8 +1,8 @@
 import {shuffleArray} from './shuffle-array.js';
 
 const getRandomElementFromArray = (elements) => {
-  const shuffledElemens = shuffleArray(elements);
-  return shuffledElemens[0];
+  const shuffledElements = shuffleArray(elements);
+  return shuffledElements[0];
 };
 
 export {getRandomElementFromArray};

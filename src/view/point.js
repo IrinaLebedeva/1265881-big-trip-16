@@ -1,5 +1,6 @@
-import dayjs from 'dayjs';
 import {createElement} from '../render.js';
+import dayjs from 'dayjs';
+
 const DATE_FORMAT = 'YYYY-MM-DD';
 const DATE_VIEW_FORMAT = 'MMM D';
 const TIME_FORMAT = 'HH:mm';

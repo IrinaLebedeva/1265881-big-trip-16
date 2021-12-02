@@ -1,8 +1,8 @@
+import dayjs from 'dayjs';
 import {generateOffers} from './offer.js';
-import {shuffleArray} from '../utils/shuffle-array.js';
 import {getRandomInteger} from '../utils/get-random-integer.js';
 import {getRandomElementFromArray} from '../utils/get-random-array-element.js';
-import dayjs from 'dayjs';
+import {shuffleArray} from '../utils/shuffle-array.js';
 
 const types = [
   'taxi',

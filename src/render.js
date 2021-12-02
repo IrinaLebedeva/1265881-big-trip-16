@@ -5,7 +5,7 @@ const RenderPosition = {
   AFTEREND: 'afterend',
 };
 
-const render = (container, position, element) => {
+const renderElement = (container, element, position = RenderPosition.BEFOREEND) => {
   switch (position) {
     case RenderPosition.BEFOREBEGIN:
       container.before(element);
@@ -19,6 +19,8 @@ const render = (container, position, element) => {
     case RenderPosition.AFTEREND:
       container.after(element);
       break;
+    default:
+      container.append(element);
   }
 };
 
@@ -29,7 +31,7 @@ const createElement = (template) => {
 };
 
 export {
-  RenderPosition,
   createElement,
-  render
+  renderElement,
+  RenderPosition,
 };
