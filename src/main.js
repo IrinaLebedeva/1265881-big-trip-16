@@ -1,12 +1,14 @@
-import {renderTemplate, RenderPosition} from './render.js';
-import {createHeaderMenuTemplate} from './view/header-menu.js';
-import {createFiltersTemplate} from './view/filters.js';
-import {createSortTemplate} from './view/sort.js';
-import {createPointsListTemplate} from './view/points-list.js';
-import {createPointsListItemTemplate} from './view/points-list-item.js';
-import {createPointTemplate} from './view/point.js';
-import {createEditPointTemplate} from './view/edit-point.js';
+import {EditPoint} from './view/edit-point.js';
+import {EmptyPointsListMessage} from './view/empty-points-list-message.js';
+import {Filters} from './view/filters.js';
 import {generatePoint} from './mock/point.js';
+import {HeaderMenu} from './view/header-menu.js';
+import {isEscapeEvent} from './utils/detect-event.js';
+import {PointsList} from './view/points-list.js';
+import {PointsListItem} from './view/points-list-item.js';
+import {Point} from './view/point.js';
+import {renderElement} from './render.js';
+import {Sort} from './view/sort.js';
 
 const POINTS_COUNT = 15;
 
@@ -19,14 +21,69 @@ const filtersContainerElement = headerElement.querySelector('.trip-controls__fil
 const mainElement = document.querySelector('.page-main');
 const eventsContainerElement = mainElement.querySelector('.trip-events');
 
-renderTemplate(navigationContainerElement, RenderPosition.BEFOREEND, createHeaderMenuTemplate());
-renderTemplate(filtersContainerElement, RenderPosition.BEFOREEND, createFiltersTemplate());
-renderTemplate(eventsContainerElement, RenderPosition.BEFOREEND, createSortTemplate());
-renderTemplate(eventsContainerElement, RenderPosition.BEFOREEND, createPointsListTemplate());
+renderElement(navigationContainerElement, new HeaderMenu().element);
+renderElement(filtersContainerElement, new Filters().element);
 
-const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
+/**
+ * @param {HTMLElement} pointsList
+ * @param {Object} pointItem
+ */
+const renderPoint = (pointsList, pointItem) => {
+  const point = new Point(pointItem);
+  const pointListItem = new PointsListItem(point.template);
+  const editPoint = new EditPoint(pointItem);
+  const pointEditListItem = new PointsListItem(editPoint.template);
 
-renderTemplate(eventsListElement, RenderPosition.BEFOREEND, createPointsListItemTemplate(createEditPointTemplate(points[0])));
-for (let i = 1; i < POINTS_COUNT; i++) {
-  renderTemplate(eventsListElement, RenderPosition.BEFOREEND, createPointsListItemTemplate(createPointTemplate(points[i])));
+  const replacePointToForm = () => {
+    pointsList.replaceChild(pointEditListItem.element, pointListItem.element);
+  };
+
+  const replaceFormToPoint = () => {
+    pointsList.replaceChild(pointListItem.element, pointEditListItem.element);
+  };
+
+  const onEscapeKeyDown = (evt) => {
+    if (isEscapeEvent(evt)) {
+      evt.preventDefault();
+      replaceFormToPoint();
+      document.removeEventListener('keydown', onEscapeKeyDown);
+    }
+  };
+
+  const removeEditPoint = () => {
+    pointsList.removeChild(pointEditListItem.element);
+  };
+
+  pointListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replacePointToForm();
+    document.addEventListener('keydown', onEscapeKeyDown);
+  });
+
+  pointEditListItem.element.querySelector('.event__save-btn').addEventListener('click', () => {
+    replaceFormToPoint();
+    document.removeEventListener('keydown', onEscapeKeyDown);
+  });
+
+  pointEditListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replaceFormToPoint();
+    document.removeEventListener('keydown', onEscapeKeyDown);
+  });
+
+  pointEditListItem.element.querySelector('.event__reset-btn').addEventListener('click', () => {
+    removeEditPoint();
+    document.removeEventListener('keydown', onEscapeKeyDown);
+  });
+
+  renderElement(pointsList, pointListItem.element);
+};
+
+if (!points.length) {
+  renderElement(eventsContainerElement, new EmptyPointsListMessage().element);
+} else {
+  renderElement(eventsContainerElement, new Sort().element);
+  renderElement(eventsContainerElement, new PointsList().element);
+  const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
+  for (const point of points) {
+    renderPoint(eventsListElement, point);
+  }
 }

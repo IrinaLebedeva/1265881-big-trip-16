@@ -1,8 +1,18 @@
-import {types, towns} from '../mock/point.js';
+import {createElement} from '../render.js';
 import dayjs from 'dayjs';
+import {
+  towns,
+  types,
+} from '../mock/point.js';
 
 const DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
 
+/**
+ * @param {Number} id
+ * @param {String} type
+ * @param {String} currentType
+ * @returns {String}
+ */
 const createTypeTemplate = (id, type, currentType) => {
   const isChecked = currentType === type ? 'checked' : '';
   return `
@@ -12,12 +22,26 @@ const createTypeTemplate = (id, type, currentType) => {
     </div>`;
 };
 
+/**
+ * @param {Number} id
+ * @param {String} currentType
+ * @returns {String}
+ */
 const createTypesTemplate = (id, currentType) => types.map((type) => createTypeTemplate(id, type, currentType)).join('');
 
+/**
+ * @param {String} town
+ * @returns {String}
+ */
 const createTownTemplate = (town) => `<option value="${town}"></option>`;
 
 const createTownsTemplate = () => towns.map((town) => createTownTemplate(town)).join('');
 
+/**
+ * @param {Number} pointId
+ * @param {Object} offer
+ * @returns {String}
+ */
 const createOfferTemplate = (pointId, offer) => (
   `<div class="event__offer-selector">
     <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${pointId}" type="checkbox" name="event-offer-luggage" checked>
@@ -29,8 +53,18 @@ const createOfferTemplate = (pointId, offer) => (
   </div>`
 );
 
+/**
+ * @param {Number} pointId
+ * @param {Object[]} offers
+ * @returns {String}
+ */
 const createOffersListTemplate = (pointId, offers) => offers.map((offer) => createOfferTemplate(pointId, offer)).join('');
 
+/**
+ * @param {Number} pointId
+ * @param {Object[]} offers
+ * @returns {String}
+ */
 const createOffersTemplate = (pointId, offers) => {
   if (!offers) {
     return '';
@@ -46,8 +80,16 @@ const createOffersTemplate = (pointId, offers) => {
   `;
 };
 
+/**
+ * @param {Object[]} pictures
+ * @returns {String}
+ */
 const createDestinationPicturesTemplate = (pictures) => pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('');
 
+/**
+ * @param {Object} destinationInfo
+ * @returns {String}
+ */
 const createDestinationTemplate = (destinationInfo) => {
   if (!destinationInfo) {
     return '';
@@ -78,8 +120,16 @@ const createEditPointActionsTemplate = () => (
   </button>`
 );
 
+/**
+ * @param {Number} id
+ * @returns {String}
+ */
 const createActionsTemplate = (id) => id ? createEditPointActionsTemplate() : createAddPointActionsTemplate();
 
+/**
+ * @param {Object} point
+ * @returns {String}
+ */
 const createEditPointTemplate = (point = {}) => {
   const {
     id = 0,
@@ -146,4 +196,29 @@ const createEditPointTemplate = (point = {}) => {
   </form>`;
 };
 
-export {createEditPointTemplate};
+
+class EditPoint {
+  #element = null;
+  #point = null
+
+  constructor(point) {
+    this.#point = point;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+    return this.#element;
+  }
+
+  get template() {
+    return createEditPointTemplate(this.#point);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export {EditPoint};

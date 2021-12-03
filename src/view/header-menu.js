@@ -1,3 +1,5 @@
+import {createElement} from '../render.js';
+
 const createHeaderMenuTemplate = () => (
   `<nav class="trip-controls__trip-tabs  trip-tabs">
     <a class="trip-tabs__btn  trip-tabs__btn--active" href="#">Table</a>
@@ -5,4 +7,23 @@ const createHeaderMenuTemplate = () => (
   </nav>`
 );
 
-export {createHeaderMenuTemplate};
+class HeaderMenu {
+  #element = null;
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+    return this.#element;
+  }
+
+  get template() {
+    return createHeaderMenuTemplate();
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export {HeaderMenu};

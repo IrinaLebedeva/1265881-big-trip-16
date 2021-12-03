@@ -1,9 +1,15 @@
+import {createElement} from '../render.js';
 import dayjs from 'dayjs';
+
 const DATE_FORMAT = 'YYYY-MM-DD';
 const DATE_VIEW_FORMAT = 'MMM D';
 const TIME_FORMAT = 'HH:mm';
 const DATE_TIME_FORMAT = 'YYYY-MM-DDTHH:mm';
 
+/**
+ * @param {Object} offer
+ * @return {string}
+ */
 const createOfferTemplate = (offer) => (
   `<li class="event__offer">
     <span class="event__offer-title">${offer.title}</span>
@@ -12,8 +18,16 @@ const createOfferTemplate = (offer) => (
   </li>`
 );
 
+/**
+ * @param {Object[]} offers
+ * @return {string}
+ */
 const createOffersListTemplate = (offers) => offers.map((offer) => createOfferTemplate(offer)).join('');
 
+/**
+ * @param {Object[]} offers
+ * @return {string}
+ */
 const createOffersTemplate = (offers) => {
   if (!offers) {
     return '';
@@ -25,8 +39,17 @@ const createOffersTemplate = (offers) => {
   </ul>`;
 };
 
+/**
+ * @param {Number} number
+ * @returns {String}
+ */
 const formatNumberInTwoDigits = (number) => (number > 10) ? number :  `0${number}`;
 
+/**
+ * @param {Date} dateFrom
+ * @param {Date} dateTo
+ * @returns {`${string}H ${string}M`|`${string}D ${string}H ${string}M`|`${string}M`}
+ */
 const formatDateDiff = (dateFrom, dateTo) => {
   const diffInMinutes = dayjs(dateTo).diff(dateFrom, 'minute');
   if (diffInMinutes < 60) {
@@ -44,6 +67,10 @@ const formatDateDiff = (dateFrom, dateTo) => {
   }
 };
 
+/**
+ * @param {Object} point
+ * @returns {String}
+ */
 const createPointTemplate = (point) => {
   const dateFrom = dayjs(point.dateFrom).format(DATE_FORMAT);
   const dateFromInViewFormat = dayjs(point.dateFrom).format(DATE_VIEW_FORMAT);
@@ -85,4 +112,28 @@ const createPointTemplate = (point) => {
   </div>`;
 };
 
-export {createPointTemplate};
+class Point {
+  #element = null;
+  #point = null
+
+  constructor(point) {
+    this.#point = point;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+    return this.#element;
+  }
+
+  get template() {
+    return createPointTemplate(this.#point);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export {Point};
