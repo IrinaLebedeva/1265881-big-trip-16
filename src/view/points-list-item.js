@@ -24,6 +24,36 @@ class PointsListItem extends AbstractView {
   get template() {
     return createPointsListItemTemplate(this.#item);
   }
+
+  setSaveClickHandler = (callback) => {
+    this._callback.saveClick = callback;
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#saveHandler);
+  }
+
+  #saveHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.saveClick();
+  }
+
+  setRollupButtonClickHandler = (callback) => {
+    this._callback.rollupButtonClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupButtonClickHandler);
+  }
+
+  #rollupButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.rollupButtonClick();
+  }
+
+  setDeleteButtonClickHandler = (callback) => {
+    this._callback.deleteButtonClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteButtonClickHandler);
+  }
+
+  #deleteButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteButtonClick();
+  }
 }
 
 export {PointsListItem};

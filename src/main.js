@@ -59,17 +59,17 @@ const renderPoint = (pointsList, pointItem) => {
     document.addEventListener('keydown', onEscapeKeyDown);
   });
 
-  pointEditListItem.element.querySelector('.event__save-btn').addEventListener('click', () => {
+  pointEditListItem.setSaveClickHandler(() => {
     replaceFormToPoint();
     document.removeEventListener('keydown', onEscapeKeyDown);
   });
 
-  pointEditListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+  pointEditListItem.setRollupButtonClickHandler(() => {
     replaceFormToPoint();
     document.removeEventListener('keydown', onEscapeKeyDown);
   });
 
-  pointEditListItem.element.querySelector('.event__reset-btn').addEventListener('click', () => {
+  pointEditListItem.setDeleteButtonClickHandler(() => {
     removeEditPoint();
     document.removeEventListener('keydown', onEscapeKeyDown);
   });
