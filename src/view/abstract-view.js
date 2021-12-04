@@ -1,5 +1,8 @@
-import {createElement} from '../render.js';
+import {createElement} from '../utils/manipulate-dom-element.js';
 
+/**
+ * @abstract
+ */
 class AbstractView {
   #element = null;
   _callback = {};
@@ -17,6 +20,9 @@ class AbstractView {
     return this.#element;
   }
 
+  /**
+   * @abstract
+   */
   get template() {
     throw new Error('Get template method is not implemented in an Abstract class');
   }
