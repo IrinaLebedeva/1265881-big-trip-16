@@ -54,7 +54,7 @@ const renderPoint = (pointsList, pointItem) => {
     pointsList.removeChild(pointEditListItem.element);
   };
 
-  pointListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+  pointListItem.setRollupButtonClickHandler(() => {
     replacePointToForm();
     document.addEventListener('keydown', onEscapeKeyDown);
   });
