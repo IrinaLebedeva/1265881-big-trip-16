@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import {AbstractView} from './abstract-view.js';
 
 /**
  * @param {String} itemContent
@@ -10,27 +10,19 @@ const createPointsListItemTemplate = (itemContent) => (
   </li>`
 );
 
-class PointsListItem {
-  #element = null;
+class PointsListItem extends AbstractView {
   #item = null;
 
   constructor(item) {
+    super();
     this.#item = item;
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
+  /**
+   * @return {String}
+   */
   get template() {
     return createPointsListItemTemplate(this.#item);
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
 
