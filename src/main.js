@@ -7,7 +7,11 @@ import {isEscapeEvent} from './utils/detect-event.js';
 import {PointsList} from './view/points-list.js';
 import {PointsListItem} from './view/points-list-item.js';
 import {Point} from './view/point.js';
-import {renderElement} from './render.js';
+import {
+  removeElement,
+  renderElement,
+  replaceElement,
+} from './utils/manipulate-dom-element.js';
 import {Sort} from './view/sort.js';
 
 const POINTS_COUNT = 15;
@@ -21,8 +25,8 @@ const filtersContainerElement = headerElement.querySelector('.trip-controls__fil
 const mainElement = document.querySelector('.page-main');
 const eventsContainerElement = mainElement.querySelector('.trip-events');
 
-renderElement(navigationContainerElement, new HeaderMenu().element);
-renderElement(filtersContainerElement, new Filters().element);
+renderElement(navigationContainerElement, new HeaderMenu());
+renderElement(filtersContainerElement, new Filters());
 
 /**
  * @param {HTMLElement} pointsList
@@ -35,11 +39,11 @@ const renderPoint = (pointsList, pointItem) => {
   const pointEditListItem = new PointsListItem(editPoint.template);
 
   const replacePointToForm = () => {
-    pointsList.replaceChild(pointEditListItem.element, pointListItem.element);
+    replaceElement(pointEditListItem, pointListItem);
   };
 
   const replaceFormToPoint = () => {
-    pointsList.replaceChild(pointListItem.element, pointEditListItem.element);
+    replaceElement(pointListItem, pointEditListItem);
   };
 
   const onEscapeKeyDown = (evt) => {
@@ -51,37 +55,37 @@ const renderPoint = (pointsList, pointItem) => {
   };
 
   const removeEditPoint = () => {
-    pointsList.removeChild(pointEditListItem.element);
+    removeElement(pointEditListItem);
   };
 
-  pointListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+  pointListItem.setRollupButtonClickHandler(() => {
     replacePointToForm();
     document.addEventListener('keydown', onEscapeKeyDown);
   });
 
-  pointEditListItem.element.querySelector('.event__save-btn').addEventListener('click', () => {
+  pointEditListItem.setSaveClickHandler(() => {
     replaceFormToPoint();
     document.removeEventListener('keydown', onEscapeKeyDown);
   });
 
-  pointEditListItem.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+  pointEditListItem.setRollupButtonClickHandler(() => {
     replaceFormToPoint();
     document.removeEventListener('keydown', onEscapeKeyDown);
   });
 
-  pointEditListItem.element.querySelector('.event__reset-btn').addEventListener('click', () => {
+  pointEditListItem.setDeleteButtonClickHandler(() => {
     removeEditPoint();
     document.removeEventListener('keydown', onEscapeKeyDown);
   });
 
-  renderElement(pointsList, pointListItem.element);
+  renderElement(pointsList, pointListItem);
 };
 
 if (!points.length) {
-  renderElement(eventsContainerElement, new EmptyPointsListMessage().element);
+  renderElement(eventsContainerElement, new EmptyPointsListMessage());
 } else {
-  renderElement(eventsContainerElement, new Sort().element);
-  renderElement(eventsContainerElement, new PointsList().element);
+  renderElement(eventsContainerElement, new Sort());
+  renderElement(eventsContainerElement, new PointsList());
   const eventsListElement = eventsContainerElement.querySelector('.trip-events__list');
   for (const point of points) {
     renderPoint(eventsListElement, point);

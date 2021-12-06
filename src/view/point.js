@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import {AbstractView} from './abstract-view.js';
 import dayjs from 'dayjs';
 
 const DATE_FORMAT = 'YYYY-MM-DD';
@@ -112,27 +112,19 @@ const createPointTemplate = (point) => {
   </div>`;
 };
 
-class Point {
-  #element = null;
+class Point extends AbstractView {
   #point = null
 
   constructor(point) {
+    super();
     this.#point = point;
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
+  /**
+   * @return {String}
+   */
   get template() {
     return createPointTemplate(this.#point);
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
 

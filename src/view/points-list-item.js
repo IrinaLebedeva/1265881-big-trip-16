@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import {AbstractView} from './abstract-view.js';
 
 /**
  * @param {String} itemContent
@@ -10,27 +10,49 @@ const createPointsListItemTemplate = (itemContent) => (
   </li>`
 );
 
-class PointsListItem {
-  #element = null;
+class PointsListItem extends AbstractView {
   #item = null;
 
   constructor(item) {
+    super();
     this.#item = item;
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
+  /**
+   * @return {String}
+   */
   get template() {
     return createPointsListItemTemplate(this.#item);
   }
 
-  removeElement() {
-    this.#element = null;
+  setSaveClickHandler = (callback) => {
+    this._callback.saveClick = callback;
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#saveHandler);
+  }
+
+  #saveHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.saveClick();
+  }
+
+  setRollupButtonClickHandler = (callback) => {
+    this._callback.rollupButtonClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupButtonClickHandler);
+  }
+
+  #rollupButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.rollupButtonClick();
+  }
+
+  setDeleteButtonClickHandler = (callback) => {
+    this._callback.deleteButtonClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteButtonClickHandler);
+  }
+
+  #deleteButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteButtonClick();
   }
 }
 
