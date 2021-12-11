@@ -1,15 +1,8 @@
-import {isEscapeEvent} from '../utils/detect-event.js';
-import {EditPoint} from '../view/edit-point.js';
 import {EmptyPointsListMessage} from '../view/empty-points-list-message.js';
-import {Point} from '../view/point.js';
 import {PointsList} from '../view/points-list.js';
-import {PointsListItem} from '../view/points-list-item.js';
+import {PointPresenter} from './point-presenter.js';
+import {renderElement} from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
-import {
-  removeElement,
-  renderElement,
-  replaceElement,
-} from '../utils/manipulate-dom-element.js';
 
 class TripRoutePresenter {
   #tripPointsContainer = null;
@@ -24,6 +17,9 @@ class TripRoutePresenter {
     this.#tripRouteContainer = tripRouteContainer;
   }
 
+  /**
+   * @param {Object[]} tripPoints
+   */
   init = (tripPoints) => {
     this.#tripPoints = tripPoints;
 
@@ -53,52 +49,8 @@ class TripRoutePresenter {
    * @param {Object} pointItem
    */
   #renderPoint = (pointItem) => {
-    const point = new Point(pointItem);
-    const pointListItem = new PointsListItem(point.template);
-    const editPoint = new EditPoint(pointItem);
-    const pointEditListItem = new PointsListItem(editPoint.template);
-
-    const replacePointToForm = () => {
-      replaceElement(pointEditListItem, pointListItem);
-    };
-
-    const replaceFormToPoint = () => {
-      replaceElement(pointListItem, pointEditListItem);
-    };
-
-    const onEscapeKeyDown = (evt) => {
-      if (isEscapeEvent(evt)) {
-        evt.preventDefault();
-        replaceFormToPoint();
-        document.removeEventListener('keydown', onEscapeKeyDown);
-      }
-    };
-
-    const removeEditPoint = () => {
-      removeElement(pointEditListItem);
-    };
-
-    pointListItem.setRollupButtonClickHandler(() => {
-      replacePointToForm();
-      document.addEventListener('keydown', onEscapeKeyDown);
-    });
-
-    pointEditListItem.setSaveClickHandler(() => {
-      replaceFormToPoint();
-      document.removeEventListener('keydown', onEscapeKeyDown);
-    });
-
-    pointEditListItem.setRollupButtonClickHandler(() => {
-      replaceFormToPoint();
-      document.removeEventListener('keydown', onEscapeKeyDown);
-    });
-
-    pointEditListItem.setDeleteButtonClickHandler(() => {
-      removeEditPoint();
-      document.removeEventListener('keydown', onEscapeKeyDown);
-    });
-
-    renderElement(this.#tripPointsContainer, pointListItem);
+    const pointPresenter = new PointPresenter(this.#tripPointsContainer);
+    pointPresenter.init(pointItem);
   }
 }
 
