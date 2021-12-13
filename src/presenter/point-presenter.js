@@ -9,20 +9,29 @@ import {
 } from '../utils/manipulate-dom-element.js';
 
 class PointPresenter {
-  #pointContainer = null;
-  #point = null;
-  #pointListItem = null;
   #editPoint = null;
+  #pointsContainer = null;
+  #point = null;
+  #pointItem = null;
+  #pointListItem = null;
   #pointEditListItem = null;
+  #pointUpdateHandler = null;
+  #previousPointListItem = null;
+  #previousPointEditListItem = null;
 
-  constructor(pointContainer) {
-    this.#pointContainer = pointContainer;
+  constructor(pointsContainer, pointUpdateHandler) {
+    this.#pointsContainer = pointsContainer;
+    this.#pointUpdateHandler = pointUpdateHandler;
   }
 
   /**
    * @param {Object} pointItem
    */
   init(pointItem) {
+    this.#previousPointListItem = this.#pointListItem;
+    this.#previousPointEditListItem = this.#pointEditListItem;
+
+    this.#pointItem = pointItem;
     this.#point = new Point(pointItem);
     this.#pointListItem = new PointsListItem(this.#point.template);
     this.#editPoint = new EditPoint(pointItem);
@@ -32,6 +41,8 @@ class PointPresenter {
       this.#replacePointToForm();
       document.addEventListener('keydown', this.#onEscapeKeyDown);
     });
+
+    this.#pointListItem.setFavouriteClickHandler(this.#handleFavouriteClick);
 
     this.#pointEditListItem.setSaveClickHandler(() => {
       this.#replaceFormToPoint();
@@ -48,7 +59,26 @@ class PointPresenter {
       document.removeEventListener('keydown', this.#onEscapeKeyDown);
     });
 
-    renderElement(this.#pointContainer, this.#pointListItem);
+    if (this.#previousPointListItem === null || this.#previousPointEditListItem === null) {
+      renderElement(this.#pointsContainer, this.#pointListItem);
+      return;
+    }
+    this.#reInit();
+  }
+
+  #reInit = () => {
+    if (this.#pointsContainer.element.contains(this.#previousPointListItem.element)) {
+      replaceElement(this.#pointListItem, this.#previousPointListItem);
+    }
+    if (this.#pointsContainer.element.contains(this.#previousPointEditListItem.element)) {
+      replaceElement(this.#pointEditListItem, this.#previousPointEditListItem);
+    }
+
+    removeElement(this.#previousPointListItem);
+    removeElement(this.#previousPointEditListItem);
+
+    this.#previousPointListItem = null;
+    this.#previousPointEditListItem = null;
   }
 
   #replacePointToForm = () => {
@@ -69,6 +99,10 @@ class PointPresenter {
 
   #removeEditPoint = () => {
     removeElement(this.#pointEditListItem);
+  }
+
+  #handleFavouriteClick = () => {
+    this.#pointUpdateHandler({...this.#pointItem, isFavorite: !this.#pointItem.isFavorite});
   }
 }
 

@@ -3,15 +3,16 @@ import {PointsList} from '../view/points-list.js';
 import {PointPresenter} from './point-presenter.js';
 import {renderElement} from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
+import {updateArrayElement} from '../utils/update-array-element.js';
 
 class TripRoutePresenter {
-  #tripPointsContainer = null;
   #tripRouteContainer = null;
   #tripPoints = [];
 
   #emptyPointsListMessage = new EmptyPointsListMessage();
   #pointsList = new PointsList();
   #sort = new Sort();
+  #tripPointsPresenter = new Map();
 
   constructor(tripRouteContainer) {
     this.#tripRouteContainer = tripRouteContainer;
@@ -39,7 +40,6 @@ class TripRoutePresenter {
   }
 
   #renderTripPoints = () => {
-    this.#tripPointsContainer = this.#tripRouteContainer.querySelector(this.#pointsList.pointsListSelector);
     for (const point of this.#tripPoints) {
       this.#renderPoint(point);
     }
@@ -49,8 +49,14 @@ class TripRoutePresenter {
    * @param {Object} pointItem
    */
   #renderPoint = (pointItem) => {
-    const pointPresenter = new PointPresenter(this.#tripPointsContainer);
+    const pointPresenter = new PointPresenter(this.#pointsList, this.#handlePointUpdate);
     pointPresenter.init(pointItem);
+    this.#tripPointsPresenter.set(pointItem.id, pointPresenter);
+  }
+
+  #handlePointUpdate = (updatedPoint) => {
+    this.#tripPoints = updateArrayElement(this.#tripPoints, updatedPoint);
+    this.#tripPointsPresenter.get(updatedPoint.id).init(updatedPoint);
   }
 }
 
