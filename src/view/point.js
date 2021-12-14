@@ -2,9 +2,11 @@ import {AbstractView} from './abstract-view.js';
 import dayjs from 'dayjs';
 
 const DATE_FORMAT = 'YYYY-MM-DD';
-const DATE_VIEW_FORMAT = 'MMM D';
-const TIME_FORMAT = 'HH:mm';
 const DATE_TIME_FORMAT = 'YYYY-MM-DDTHH:mm';
+const DATE_VIEW_FORMAT = 'MMM D';
+const HOURS_IN_DAY = 24;
+const MINUTES_IN_HOUR = 60;
+const TIME_FORMAT = 'HH:mm';
 
 /**
  * @param {Object} offer
@@ -52,16 +54,16 @@ const formatNumberInTwoDigits = (number) => (number > 10) ? number :  `0${number
  */
 const formatDateDiff = (dateFrom, dateTo) => {
   const diffInMinutes = dayjs(dateTo).diff(dateFrom, 'minute');
-  if (diffInMinutes < 60) {
+  if (diffInMinutes < MINUTES_IN_HOUR) {
     return `${formatNumberInTwoDigits(diffInMinutes)}M`;
   } else {
-    let hours = Math.trunc(diffInMinutes / 60);
-    const minutes = diffInMinutes % 60;
-    if (hours < 24) {
+    let hours = Math.trunc(diffInMinutes / MINUTES_IN_HOUR);
+    const minutes = diffInMinutes % MINUTES_IN_HOUR;
+    if (hours < HOURS_IN_DAY) {
       return `${formatNumberInTwoDigits(hours)}H ${formatNumberInTwoDigits(minutes)}M`;
     } else {
-      const days = Math.trunc(hours / 24);
-      hours = days % 24;
+      const days = Math.trunc(hours / HOURS_IN_DAY);
+      hours = days % HOURS_IN_DAY;
       return `${formatNumberInTwoDigits(days)}D ${formatNumberInTwoDigits(hours)}H ${formatNumberInTwoDigits(minutes)}M`;
     }
   }
