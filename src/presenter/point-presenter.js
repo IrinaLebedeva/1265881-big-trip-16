@@ -47,19 +47,16 @@ class PointPresenter {
 
     this.#pointListItem.setRollupButtonClickHandler(() => {
       this.#replacePointToForm();
-      document.addEventListener('keydown', this.#onEscapeKeyDown);
     });
 
     this.#pointListItem.setFavouriteClickHandler(this.#handleFavouriteClick);
 
     this.#pointEditListItem.setSaveClickHandler(() => {
       this.#replaceFormToPoint();
-      document.removeEventListener('keydown', this.#onEscapeKeyDown);
     });
 
     this.#pointEditListItem.setRollupButtonClickHandler(() => {
       this.#replaceFormToPoint();
-      document.removeEventListener('keydown', this.#onEscapeKeyDown);
     });
 
     this.#pointEditListItem.setDeleteButtonClickHandler(() => {
@@ -97,12 +94,14 @@ class PointPresenter {
 
   #replacePointToForm = () => {
     replaceElement(this.#pointEditListItem, this.#pointListItem);
+    document.addEventListener('keydown', this.#onEscapeKeyDown);
     this.#modeUpdateHandler();
     this.#mode = Mode.EDIT;
   }
 
   #replaceFormToPoint = () => {
     replaceElement(this.#pointListItem, this.#pointEditListItem);
+    document.removeEventListener('keydown', this.#onEscapeKeyDown);
     this.#mode = Mode.DEFAULT;
   }
 
