@@ -8,8 +8,15 @@ import {
   replaceElement
 } from '../utils/manipulate-dom-element.js';
 
+const Mode = {
+  DEFAULT: 'VIEW',
+  EDIT: 'EDIT',
+};
+
 class PointPresenter {
   #editPoint = null;
+  #mode = Mode.DEFAULT;
+  #modeUpdateHandler = null;
   #pointsContainer = null;
   #point = null;
   #pointItem = null;
@@ -19,9 +26,10 @@ class PointPresenter {
   #previousPointListItem = null;
   #previousPointEditListItem = null;
 
-  constructor(pointsContainer, pointUpdateHandler) {
+  constructor(pointsContainer, pointUpdateHandler, modeUpdateHandler) {
     this.#pointsContainer = pointsContainer;
     this.#pointUpdateHandler = pointUpdateHandler;
+    this.#modeUpdateHandler = modeUpdateHandler;
   }
 
   /**
@@ -66,11 +74,17 @@ class PointPresenter {
     this.#reInit();
   }
 
+  resetView = () => {
+    if (this.#mode === Mode.EDIT) {
+      this.#replaceFormToPoint();
+    }
+  };
+
   #reInit = () => {
-    if (this.#pointsContainer.element.contains(this.#previousPointListItem.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replaceElement(this.#pointListItem, this.#previousPointListItem);
     }
-    if (this.#pointsContainer.element.contains(this.#previousPointEditListItem.element)) {
+    if (this.#mode === Mode.EDIT) {
       replaceElement(this.#pointEditListItem, this.#previousPointEditListItem);
     }
 
@@ -83,10 +97,13 @@ class PointPresenter {
 
   #replacePointToForm = () => {
     replaceElement(this.#pointEditListItem, this.#pointListItem);
+    this.#modeUpdateHandler();
+    this.#mode = Mode.EDIT;
   }
 
   #replaceFormToPoint = () => {
     replaceElement(this.#pointListItem, this.#pointEditListItem);
+    this.#mode = Mode.DEFAULT;
   }
 
   #onEscapeKeyDown = (evt) => {

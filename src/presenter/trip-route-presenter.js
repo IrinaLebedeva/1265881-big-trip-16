@@ -49,9 +49,13 @@ class TripRoutePresenter {
    * @param {Object} pointItem
    */
   #renderPoint = (pointItem) => {
-    const pointPresenter = new PointPresenter(this.#pointsList, this.#handlePointUpdate);
+    const pointPresenter = new PointPresenter(this.#pointsList, this.#handlePointUpdate, this.#handleModeUpdate);
     pointPresenter.init(pointItem);
     this.#tripPointsPresenter.set(pointItem.id, pointPresenter);
+  }
+
+  #handleModeUpdate = () => {
+    this.#tripPointsPresenter.forEach((presenter) => presenter.resetView());
   }
 
   #handlePointUpdate = (updatedPoint) => {
