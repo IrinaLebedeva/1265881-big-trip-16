@@ -45,7 +45,7 @@ const createOffersTemplate = (offers) => {
  * @param {Number} number
  * @returns {String}
  */
-const formatNumberInTwoDigits = (number) => (number > 10) ? number :  `0${number}`;
+const formatNumberInTwoDigits = (number) => (number > 9) ? number :  `0${number}`;
 
 /**
  * @param {Date} dateFrom
@@ -53,7 +53,7 @@ const formatNumberInTwoDigits = (number) => (number > 10) ? number :  `0${number
  * @returns {`${string}H ${string}M`|`${string}D ${string}H ${string}M`|`${string}M`}
  */
 const formatDateDiff = (dateFrom, dateTo) => {
-  const diffInMinutes = dayjs(dateTo).diff(dateFrom, 'minute');
+  const diffInMinutes = dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
   if (diffInMinutes < MINUTES_IN_HOUR) {
     return `${formatNumberInTwoDigits(diffInMinutes)}M`;
   } else {
