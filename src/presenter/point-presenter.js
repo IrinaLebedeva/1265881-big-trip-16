@@ -75,7 +75,12 @@ class PointPresenter {
     if (this.#mode === Mode.EDIT) {
       this.#replaceFormToPoint();
     }
-  };
+  }
+
+  destroy = () => {
+    removeElement(this.#pointListItem);
+    removeElement(this.#pointEditListItem);
+  }
 
   #reInit = () => {
     if (this.#mode === Mode.DEFAULT) {
