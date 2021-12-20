@@ -3,9 +3,19 @@ import {PointsList} from '../view/points-list.js';
 import {PointPresenter} from './point-presenter.js';
 import {renderElement} from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
+import {
+  DEFAULT_SORT_TYPE,
+  SortType,
+} from '../const.js';
+import {
+  sortPointsByDateDesc,
+  sortPointsByPriceDesc,
+  sortPointsByTimeDesc,
+} from '../utils/sort-points.js';
 import {updateArrayElement} from '../utils/update-array-element.js';
 
 class TripRoutePresenter {
+  #currentSortType = DEFAULT_SORT_TYPE;
   #tripRouteContainer = null;
   #tripPoints = [];
 
@@ -23,8 +33,13 @@ class TripRoutePresenter {
    */
   init = (tripPoints) => {
     this.#tripPoints = tripPoints;
+    this.#sortPoints(this.#currentSortType);
 
     this.#renderTripRoute();
+  }
+
+  #clearTripPoints = () => {
+    this.#tripPointsPresenter.forEach((presenter) => presenter.destroy());
   }
 
   #renderEmptyTripRoute = () => renderElement(this.#tripRouteContainer, this.#emptyPointsListMessage);
@@ -34,6 +49,7 @@ class TripRoutePresenter {
       this.#renderEmptyTripRoute();
     } else {
       renderElement(this.#tripRouteContainer, this.#sort);
+      this.#sort.setSortTypeChange(this.#handleSortChange);
       renderElement(this.#tripRouteContainer, this.#pointsList);
       this.#renderTripPoints();
     }
@@ -61,6 +77,32 @@ class TripRoutePresenter {
   #handlePointUpdate = (updatedPoint) => {
     this.#tripPoints = updateArrayElement(this.#tripPoints, updatedPoint);
     this.#tripPointsPresenter.get(updatedPoint.id).init(updatedPoint);
+  }
+
+  #handleSortChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+    this.#sortPoints(sortType);
+    this.#clearTripPoints();
+    this.#renderTripPoints();
+  }
+
+  #sortPoints = (sortType) => {
+    switch (sortType) {
+      case SortType.DAY_DESC:
+        this.#tripPoints.sort(sortPointsByDateDesc);
+        break;
+      case SortType.TIME_DESC:
+        this.#tripPoints.sort(sortPointsByTimeDesc);
+        break;
+      case SortType.PRICE_DESC:
+        this.#tripPoints.sort(sortPointsByPriceDesc);
+        break;
+      default:
+        this.#tripPoints.sort(sortPointsByDateDesc);
+    }
+    this.#currentSortType = sortType;
   }
 }
 
