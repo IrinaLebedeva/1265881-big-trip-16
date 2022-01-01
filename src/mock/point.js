@@ -2,19 +2,8 @@ import dayjs from 'dayjs';
 import {generateOffers} from './offer.js';
 import {getRandomInteger} from '../utils/get-random-integer.js';
 import {getRandomElementFromArray} from '../utils/get-random-array-element.js';
+import {pointTypes} from '../const.js';
 import {shuffleArray} from '../utils/shuffle-array.js';
-
-const types = [
-  'taxi',
-  'bus',
-  'train',
-  'ship',
-  'drive',
-  'flight',
-  'check-in',
-  'sightseeing',
-  'restaurant',
-];
 
 const towns = [
   'Geneva',
@@ -37,7 +26,14 @@ const DAYS_GAP = 7;
 const MINUTES_GAP_MIN = 10;
 const MINUTES_GAP_MAX = 24*60*DAYS_GAP;
 
-const generateType = () => getRandomElementFromArray(types);
+const offers = generateOffers();
+
+const getOffersByType = (type) => {
+  const typeOffers = offers.find((offer) => offer.type === type);
+  return (typeof typeOffers !== 'undefined') ? typeOffers.offers : null;
+};
+
+const generateType = () => getRandomElementFromArray(pointTypes);
 
 const generateDestination = () => getRandomElementFromArray(towns);
 
@@ -86,11 +82,12 @@ const generateDateTo = (dateFrom, dateGapInMinutes) => dayjs(dateFrom).add(dateG
 
 const generatePoint = (id) => {
   const dateFrom = generateDateFrom();
+  const type = generateType();
   return {
     id,
-    type: generateType(),
+    type,
     destination: generateDestination(),
-    offers: generateOffers(),
+    offers: getOffersByType(type),
     destinationInfo: generateDestinationInfo(),
     basePrice: generatePrice(),
     isFavorite: generateIsFavorite(),
@@ -99,4 +96,4 @@ const generatePoint = (id) => {
   };
 };
 
-export {generatePoint, types, towns};
+export {generatePoint, towns};
