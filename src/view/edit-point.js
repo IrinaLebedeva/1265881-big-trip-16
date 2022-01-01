@@ -1,9 +1,8 @@
-import {AbstractView} from './abstract-view.js';
 import dayjs from 'dayjs';
-import {
-  towns,
-  types,
-} from '../mock/point.js';
+import {generateDestinationInfo} from '../mock/destination-info.js';
+import {pointTypes} from '../const.js';
+import {SmartView} from './smart-view.js';
+import {towns} from '../mock/point.js';
 
 const DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
 
@@ -15,8 +14,7 @@ const DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
  */
 const createTypeTemplate = (id, type, currentType) => {
   const isChecked = currentType === type ? 'checked' : '';
-  return `
-    <div class="event__type-item">
+  return `<div class="event__type-item">
       <input id="event-type-${type}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${isChecked}>
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${id}">${type}</label>
     </div>`;
@@ -27,7 +25,7 @@ const createTypeTemplate = (id, type, currentType) => {
  * @param {String} currentType
  * @returns {String}
  */
-const createTypesTemplate = (id, currentType) => types.map((type) => createTypeTemplate(id, type, currentType)).join('');
+const createTypesTemplate = (id, currentType) => pointTypes.map((type) => createTypeTemplate(id, type, currentType)).join('');
 
 /**
  * @param {String} town
@@ -70,8 +68,7 @@ const createOffersTemplate = (pointId, offers) => {
     return '';
   }
 
-  return `
-  <section class="event__section  event__section--offers">
+  return `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
       ${createOffersListTemplate(pointId, offers)}
@@ -94,8 +91,7 @@ const createDestinationTemplate = (destinationInfo) => {
   if (!destinationInfo) {
     return '';
   }
-  return `
-  <section class="event__section  event__section--destination">
+  return `<section class="event__section  event__section--destination">
     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
     <p class="event__destination-description">${destinationInfo.description}</p>
 
@@ -142,8 +138,7 @@ const createEditPointTemplate = (point = {}) => {
     dateTo = dayjs().format(DATE_TIME_FORMAT),
   } = point;
 
-  return `
-  <form class="event event--edit" action="#" method="post">
+  return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
@@ -197,12 +192,17 @@ const createEditPointTemplate = (point = {}) => {
 };
 
 
-class EditPoint extends AbstractView {
-  #point = null
+class EditPoint extends SmartView {
+  #point = null;
+  #offers = null;
 
-  constructor(point) {
+  constructor(point, offers) {
     super();
     this.#point = point;
+    this.#offers = offers;
+    this._data = point;
+
+    this.#setInnerHandlers();
   }
 
   /**
@@ -210,6 +210,42 @@ class EditPoint extends AbstractView {
    */
   get template() {
     return createEditPointTemplate(this.#point);
+  }
+
+  restoreHandlers = () => {
+    this.#setInnerHandlers();
+  }
+
+  #setInnerHandlers = () => {
+    this.element.querySelectorAll('.event__type-label').forEach((currentElement) => {
+      currentElement.addEventListener('click', this.#typeClickHandler);
+    });
+
+    this.element.querySelector('input[name=event-destination]').addEventListener('change', this.#destinationChangeHandler);
+  }
+
+  /**
+   * @param {String} type
+   * @return {Object[]|null}
+   */
+  #getOffersByType = (type) => {
+    const typeOffers = this.#offers.find((offer) => offer.type === type);
+    return (typeof typeOffers !== 'undefined') ? typeOffers.offers : null;
+  };
+
+  #typeClickHandler = (evt) => {
+    evt.preventDefault();
+    //сравнить с предыдущим значением
+    //получить новый список офферов this.#getOffersByType
+    //перерисовать офферы
+  }
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+    //сравнить с предыдущим значением
+    //получить новые, пока моковые данные
+    generateDestinationInfo();
+    //перерисовать блок с описанием
   }
 }
 

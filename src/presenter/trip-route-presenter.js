@@ -16,6 +16,7 @@ import {updateArrayElement} from '../utils/update-array-element.js';
 
 class TripRoutePresenter {
   #currentSortType = DEFAULT_SORT_TYPE;
+  #offers = null;
   #tripRouteContainer = null;
   #tripPoints = [];
 
@@ -30,9 +31,11 @@ class TripRoutePresenter {
 
   /**
    * @param {Object[]} tripPoints
+   * @param {Object[]} offers
    */
-  init = (tripPoints) => {
+  init = (tripPoints, offers) => {
     this.#tripPoints = tripPoints;
+    this.#offers = offers;
     this.#sortPoints(this.#currentSortType);
 
     this.#renderTripRoute();
@@ -66,7 +69,7 @@ class TripRoutePresenter {
    */
   #renderPoint = (pointItem) => {
     const pointPresenter = new PointPresenter(this.#pointsList, this.#handlePointUpdate, this.#handleModeUpdate);
-    pointPresenter.init(pointItem);
+    pointPresenter.init(pointItem, this.#offers);
     this.#tripPointsPresenter.set(pointItem.id, pointPresenter);
   }
 

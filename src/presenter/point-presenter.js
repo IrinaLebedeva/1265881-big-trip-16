@@ -34,15 +34,16 @@ class PointPresenter {
 
   /**
    * @param {Object} pointItem
+   * @param {Object[]} offers
    */
-  init(pointItem) {
+  init(pointItem, offers) {
     this.#previousPointListItem = this.#pointListItem;
     this.#previousPointEditListItem = this.#pointEditListItem;
 
     this.#pointItem = pointItem;
     this.#point = new Point(pointItem);
     this.#pointListItem = new PointsListItem(this.#point.template);
-    this.#editPoint = new EditPoint(pointItem);
+    this.#editPoint = new EditPoint(pointItem, offers);
     this.#pointEditListItem = new PointsListItem(this.#editPoint.template);
 
     this.#pointListItem.setRollupButtonClickHandler(() => {
