@@ -1,9 +1,13 @@
 import dayjs from 'dayjs';
+import flatpickr from 'flatpickr';
 import {generateDestinationInfo} from '../mock/destination-info.js';
 import {offersByPointTypes} from '../mock/offer.js';
 import {pointTypes} from '../const.js';
 import {SmartView} from './smart-view.js';
 import {towns} from '../mock/point.js';
+
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+
 
 const DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
 
