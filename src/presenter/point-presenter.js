@@ -1,7 +1,6 @@
 import {EditPoint} from '../view/edit-point.js';
 import {isEscapeEvent} from '../utils/detect-event.js';
 import {Point} from '../view/point.js';
-import {PointsListItem} from '../view/points-list-item.js';
 import {
   removeElement,
   renderElement,
@@ -14,11 +13,9 @@ const Mode = {
 };
 
 class PointPresenter {
-  #editPoint = null;
   #mode = Mode.DEFAULT;
   #modeUpdateHandler = null;
   #pointsContainer = null;
-  #point = null;
   #pointItem = null;
   #pointListItem = null;
   #pointEditListItem = null;
@@ -34,17 +31,14 @@ class PointPresenter {
 
   /**
    * @param {Object} pointItem
-   * @param {Object[]} offers
    */
-  init(pointItem, offers) {
+  init(pointItem) {
     this.#previousPointListItem = this.#pointListItem;
     this.#previousPointEditListItem = this.#pointEditListItem;
 
     this.#pointItem = pointItem;
-    this.#point = new Point(pointItem);
-    this.#pointListItem = new PointsListItem(this.#point.template);
-    this.#editPoint = new EditPoint(pointItem, offers);
-    this.#pointEditListItem = new PointsListItem(this.#editPoint.template);
+    this.#pointListItem = new Point(pointItem);
+    this.#pointEditListItem = new EditPoint(pointItem);
 
     this.#pointListItem.setRollupButtonClickHandler(() => {
       this.#replacePointToForm();
@@ -52,11 +46,13 @@ class PointPresenter {
 
     this.#pointListItem.setFavouriteClickHandler(this.#handleFavouriteClick);
 
-    this.#pointEditListItem.setSaveClickHandler(() => {
+    this.#pointEditListItem.setSaveClickHandler((updatedPointItem) => {
+      this.#pointUpdateHandler(updatedPointItem);
       this.#replaceFormToPoint();
     });
 
     this.#pointEditListItem.setRollupButtonClickHandler(() => {
+      this.#pointEditListItem.reset(this.#pointItem);
       this.#replaceFormToPoint();
     });
 
@@ -114,6 +110,7 @@ class PointPresenter {
   #onEscapeKeyDown = (evt) => {
     if (isEscapeEvent(evt)) {
       evt.preventDefault();
+      this.#pointEditListItem.reset(this.#pointItem);
       this.#replaceFormToPoint();
       document.removeEventListener('keydown', this.#onEscapeKeyDown);
     }

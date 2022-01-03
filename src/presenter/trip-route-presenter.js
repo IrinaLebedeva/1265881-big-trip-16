@@ -31,11 +31,9 @@ class TripRoutePresenter {
 
   /**
    * @param {Object[]} tripPoints
-   * @param {Object[]} offers
    */
-  init = (tripPoints, offers) => {
+  init = (tripPoints) => {
     this.#tripPoints = tripPoints;
-    this.#offers = offers;
     this.#sortPoints(this.#currentSortType);
 
     this.#renderTripRoute();
@@ -69,7 +67,7 @@ class TripRoutePresenter {
    */
   #renderPoint = (pointItem) => {
     const pointPresenter = new PointPresenter(this.#pointsList, this.#handlePointUpdate, this.#handleModeUpdate);
-    pointPresenter.init(pointItem, this.#offers);
+    pointPresenter.init(pointItem);
     this.#tripPointsPresenter.set(pointItem.id, pointPresenter);
   }
 

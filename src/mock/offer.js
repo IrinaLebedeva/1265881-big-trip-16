@@ -37,4 +37,6 @@ const generateOffers = () => pointTypes.map((pointType) => ({
   'offers': generateTypeOffers(),
 }));
 
-export {generateOffers};
+const offersByPointTypes = generateOffers();
+
+export {offersByPointTypes};
