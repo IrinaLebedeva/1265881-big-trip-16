@@ -1,3 +1,15 @@
+const pointTypes = [
+  'taxi',
+  'bus',
+  'train',
+  'ship',
+  'drive',
+  'flight',
+  'check-in',
+  'sightseeing',
+  'restaurant',
+];
+
 const SortType = {
   DAY_DESC: 'day_desc',
   TIME_DESC: 'time_desc',
@@ -6,4 +18,8 @@ const SortType = {
 
 const DEFAULT_SORT_TYPE = SortType.DAY_DESC;
 
-export {SortType, DEFAULT_SORT_TYPE};
+export {
+  DEFAULT_SORT_TYPE,
+  pointTypes,
+  SortType,
+};
