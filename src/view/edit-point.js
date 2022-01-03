@@ -8,8 +8,8 @@ import {towns} from '../mock/point.js';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
-
-const DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
+const DAYJS_DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
+const FLATPICKR_DATE_TIME_FORMAT = 'd/m/y H:i';
 
 const getOffersByType = (type) => {
   const typeOffers = offersByPointTypes.find((offer) => offer.type === type);
@@ -162,8 +162,8 @@ const createEditPointTemplate = (point = {}) => {
     offers = null,
     destinationInfo = null,
     basePrice = 1,
-    dateFrom = dayjs().format(DATE_TIME_FORMAT),
-    dateTo = dayjs().format(DATE_TIME_FORMAT),
+    dateFrom = dayjs().format(DAYJS_DATE_TIME_FORMAT),
+    dateTo = dayjs().format(DAYJS_DATE_TIME_FORMAT),
   } = point;
 
   return `<li class="trip-events__item">
@@ -196,10 +196,10 @@ const createEditPointTemplate = (point = {}) => {
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-${id}">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dayjs(dateFrom).format(DATE_TIME_FORMAT)}">
+          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dayjs(dateFrom).format(DAYJS_DATE_TIME_FORMAT)}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-${id}">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dayjs(dateTo).format(DATE_TIME_FORMAT)}">
+          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dayjs(dateTo).format(DAYJS_DATE_TIME_FORMAT)}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -222,6 +222,8 @@ const createEditPointTemplate = (point = {}) => {
 };
 
 class EditPoint extends SmartView {
+  #datepickerFrom = null;
+  #datepickerTo = null;
   _data = null;
 
   constructor(point) {
@@ -229,6 +231,7 @@ class EditPoint extends SmartView {
     this._data = point;
 
     this.#setInnerHandlers();
+    this.#setDatepickers();
   }
 
   /**
@@ -270,6 +273,7 @@ class EditPoint extends SmartView {
 
   restoreHandlers = () => {
     this.#setInnerHandlers();
+    this.#setDatepickers();
 
     this.setSaveClickHandler(this._callback.saveClick);
     this.setDeleteButtonClickHandler(this._callback.deleteButtonClick);
@@ -283,6 +287,31 @@ class EditPoint extends SmartView {
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('click', this.#typeClickHandler);
     this.element.querySelector('input[name=event-destination]').addEventListener('change', this.#destinationChangeHandler);
+  }
+
+  #setDatepickers = () => {
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('input[name=event-start-time]'),
+      {
+        dateFormat: FLATPICKR_DATE_TIME_FORMAT,
+        // eslint-disable-next-line camelcase
+        time_24hr: true,
+        enableTime: true,
+        minuteIncrement: 1,
+        defaultDate: dayjs(this._data.dateFrom).toISOString(),
+      }
+    );
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('input[name=event-end-time]'),
+      {
+        dateFormat: FLATPICKR_DATE_TIME_FORMAT,
+        // eslint-disable-next-line camelcase
+        time_24hr: true,
+        enableTime: true,
+        minuteIncrement: 1,
+        defaultDate: dayjs(this._data.dateTo).toISOString(),
+      }
+    );
   }
 
   #typeClickHandler = (evt) => {
@@ -334,6 +363,16 @@ class EditPoint extends SmartView {
 
     point.offers = newPointOffers;
     return point;
+  }
+
+  removeElement = () => {
+    super.removeElement();
+
+    this.#datepickerFrom.destroy();
+    this.#datepickerFrom = null;
+
+    this.#datepickerTo.destroy();
+    this.#datepickerTo = null;
   }
 }
 

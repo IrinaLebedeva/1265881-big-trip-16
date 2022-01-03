@@ -5,7 +5,7 @@ import {offersByPointTypes} from './mock/offer.js';
 import {renderElement} from './utils/manipulate-dom-element.js';
 import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
 
-const POINTS_COUNT = 3;
+const POINTS_COUNT = 15;
 
 const points = Array(POINTS_COUNT).fill(null).map((_, index) => generatePoint(index + 1, offersByPointTypes));
 
