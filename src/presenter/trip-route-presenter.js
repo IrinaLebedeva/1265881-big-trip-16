@@ -16,7 +16,6 @@ import {updateArrayElement} from '../utils/update-array-element.js';
 
 class TripRoutePresenter {
   #currentSortType = DEFAULT_SORT_TYPE;
-  #offers = null;
   #tripRouteContainer = null;
   #tripPoints = [];
 
