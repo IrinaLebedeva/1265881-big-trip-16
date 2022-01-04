@@ -65,7 +65,7 @@ class PointPresenter {
     });
 
     this.#pointEditListItem.setDeleteButtonClickHandler(() => {
-      this.#removeEditPoint();
+      this.#removePoint();
       document.removeEventListener('keydown', this.#onEscapeKeyDown);
     });
 
@@ -124,7 +124,7 @@ class PointPresenter {
     }
   }
 
-  #removeEditPoint = () => {
+  #removePoint = () => {
     removeElement(this.#pointEditListItem);
   }
 
