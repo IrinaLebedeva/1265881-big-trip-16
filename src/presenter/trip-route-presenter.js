@@ -53,13 +53,6 @@ class TripRoutePresenter {
     this.#renderTripRoute();
   }
 
-  #clearTripPoints = () => {
-    removeElement(this.#pointsList);
-    this.#tripPointsPresenter.forEach((presenter) => presenter.destroy());
-  }
-
-  #renderEmptyTripRoute = () => renderElement(this.#tripRouteContainer, this.#emptyPointsListMessage);
-
   #renderTripRoute = () => {
     if (!this.points.length) {
       this.#renderEmptyTripRoute();
@@ -69,9 +62,22 @@ class TripRoutePresenter {
     }
   }
 
-  #clearSort = () => {
-    removeElement(this.#sort);
+  #clearTripRoute = (resetSortType = false) => {
+    if (!this.points.length) {
+      this.#clearEmptyTripRoute();
+    } else {
+      this.#clearSort();
+      this.#clearTripPoints();
+    }
+
+    if (resetSortType) {
+      this.#currentSortType = DEFAULT_SORT_TYPE;
+    }
   }
+
+  #renderEmptyTripRoute = () => renderElement(this.#tripRouteContainer, this.#emptyPointsListMessage);
+
+  #clearEmptyTripRoute = () => removeElement(this.#emptyPointsListMessage);
 
   #renderSort = () => {
     this.#sort = new Sort(this.#currentSortType);
@@ -79,11 +85,20 @@ class TripRoutePresenter {
     this.#sort.setSortTypeChange(this.#handleSortChange);
   }
 
+  #clearSort = () => {
+    removeElement(this.#sort);
+  }
+
   #renderTripPoints = () => {
     renderElement(this.#tripRouteContainer, this.#pointsList);
     for (const point of this.points) {
       this.#renderPoint(point);
     }
+  }
+
+  #clearTripPoints = () => {
+    removeElement(this.#pointsList);
+    this.#tripPointsPresenter.forEach((presenter) => presenter.destroy());
   }
 
   /**
@@ -116,14 +131,15 @@ class TripRoutePresenter {
   #handleModelEvent = (viewUpdateType, updatedData) => {
     switch (viewUpdateType) {
       case ViewUpdateType.PATCH:
-        //при обновлении задачи
         this.#tripPointsPresenter.get(updatedData.id).init(updatedData);
         break;
       case ViewUpdateType.MINOR:
-        //обновить список (при удалении, добавлении)
+        this.#clearTripRoute();
+        this.#renderTripRoute();
         break;
       case ViewUpdateType.MAJOR:
-        //обновить всю страницу (при смене фильтра)
+        this.#clearTripRoute(true);
+        this.#renderTripRoute();
         break;
     }
   }
