@@ -22,7 +22,7 @@ class TripRoutePresenter {
 
   #emptyPointsListMessage = new EmptyPointsListMessage();
   #pointsList = new PointsList();
-  #sort = new Sort();
+  #sort = new Sort(this.#currentSortType);
   #tripPointsPresenter = new Map();
 
   constructor(tripRouteContainer, pointsModel) {
