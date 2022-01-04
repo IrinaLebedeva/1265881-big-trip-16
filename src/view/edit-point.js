@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import flatpickr from 'flatpickr';
 import {generateDestinationInfo} from '../mock/destination-info.js';
 import {offersByPointTypes} from '../mock/offer.js';
@@ -8,8 +9,13 @@ import {towns} from '../mock/point.js';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
+dayjs.extend(customParseFormat);
+
 const DAYJS_DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
+const FLATPICKR_TO_DAYJS_DATE_TIME_FORMAT = 'DD/MM/YY HH:mm';
 const FLATPICKR_DATE_TIME_FORMAT = 'd/m/y H:i';
+const DATE_RANGE_MINUTES_GAP_MIN = 1;
+const PRICE_MIN = 1;
 
 const getOffersByType = (type) => {
   const typeOffers = offersByPointTypes.find((offer) => offer.type === type);
@@ -196,10 +202,10 @@ const createEditPointTemplate = (point = {}) => {
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-${id}">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dayjs(dateFrom).format(DAYJS_DATE_TIME_FORMAT)}">
+          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dayjs(dateFrom).format(DAYJS_DATE_TIME_FORMAT)}" required>
           &mdash;
           <label class="visually-hidden" for="event-end-time-${id}">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dayjs(dateTo).format(DAYJS_DATE_TIME_FORMAT)}">
+          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dayjs(dateTo).format(DAYJS_DATE_TIME_FORMAT)}" required>
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -207,7 +213,7 @@ const createEditPointTemplate = (point = {}) => {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-${id}" type="text" name="event-price" value="${basePrice}">
+          <input class="event__input  event__input--price" id="event-price-${id}" type="number" name="event-price" value="${basePrice}" required min="${PRICE_MIN}">
         </div>
 
         ${createActionsTemplate(id)}
@@ -222,6 +228,9 @@ const createEditPointTemplate = (point = {}) => {
 };
 
 class EditPoint extends SmartView {
+  #dateFromElement = null;
+  #dateToElement = null;
+  #priceElement = null;
   #datepickerFrom = null;
   #datepickerTo = null;
   _data = null;
@@ -229,6 +238,10 @@ class EditPoint extends SmartView {
   constructor(point) {
     super();
     this._data = point;
+
+    this.#dateFromElement = this.element.querySelector('input[name=event-start-time]');
+    this.#dateToElement = this.element.querySelector('input[name=event-end-time]');
+    this.#priceElement = this.element.querySelector('input[name=event-price]');
 
     this.#setInnerHandlers();
     this.#setDatepickers();
@@ -248,7 +261,9 @@ class EditPoint extends SmartView {
 
   #saveHandler = (evt) => {
     evt.preventDefault();
-    this._callback.saveClick(this.#parseDataToPoint(this._data));
+    if (this.#validateForm()) {
+      this._callback.saveClick(this.#parseDataToPoint(this._data));
+    }
   }
 
   setDeleteButtonClickHandler = (callback) => {
@@ -291,7 +306,7 @@ class EditPoint extends SmartView {
 
   #setDatepickers = () => {
     this.#datepickerFrom = flatpickr(
-      this.element.querySelector('input[name=event-start-time]'),
+      this.#dateFromElement,
       {
         dateFormat: FLATPICKR_DATE_TIME_FORMAT,
         // eslint-disable-next-line camelcase
@@ -302,7 +317,7 @@ class EditPoint extends SmartView {
       }
     );
     this.#datepickerTo = flatpickr(
-      this.element.querySelector('input[name=event-end-time]'),
+      this.#dateToElement,
       {
         dateFormat: FLATPICKR_DATE_TIME_FORMAT,
         // eslint-disable-next-line camelcase
@@ -344,6 +359,30 @@ class EditPoint extends SmartView {
 
   #isValidDestination = (newDestination) => towns.find((town) => town === newDestination) !== undefined;
 
+  /**
+   * @returns {boolean} true, if dates range is valid
+   */
+  #validateDateRange = () => {
+    const dateFrom = dayjs(this.#dateFromElement.value, FLATPICKR_TO_DAYJS_DATE_TIME_FORMAT);
+    const dateTo = dayjs(this.#dateToElement.value, FLATPICKR_TO_DAYJS_DATE_TIME_FORMAT);
+    const diffInMinutes = dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
+
+    return diffInMinutes > DATE_RANGE_MINUTES_GAP_MIN;
+  }
+
+  /**
+   * @returns {boolean} true, if field value is valid
+   */
+  #validatePrice = () => Boolean(Number(this.#priceElement.value));
+
+  /**
+   * @returns {boolean} true, if form fields values are valid
+   */
+  #validateForm = () => ![
+    this.#validateDateRange(),
+    this.#validatePrice(),
+  ].some((value) => !value);
+
   #parseDataToPoint = (data) => {
     const point = data;
 
@@ -360,6 +399,10 @@ class EditPoint extends SmartView {
         }
       });
     }
+
+    point.basePrice = Number(this.#priceElement.value);
+    point.dateFrom = dayjs(this.#dateFromElement.value, FLATPICKR_TO_DAYJS_DATE_TIME_FORMAT).toDate();
+    point.dateTo = dayjs(this.#dateToElement.value, FLATPICKR_TO_DAYJS_DATE_TIME_FORMAT).toDate();
 
     point.offers = newPointOffers;
     return point;
