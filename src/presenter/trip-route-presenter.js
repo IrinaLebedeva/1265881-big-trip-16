@@ -1,7 +1,7 @@
 import {EmptyPointsListMessage} from '../view/empty-points-list-message.js';
 import {PointsList} from '../view/points-list.js';
 import {PointPresenter} from './point-presenter.js';
-import {renderElement} from '../utils/manipulate-dom-element.js';
+import {removeElement, renderElement} from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
 import {
   DEFAULT_SORT_TYPE,
@@ -22,7 +22,7 @@ class TripRoutePresenter {
 
   #emptyPointsListMessage = new EmptyPointsListMessage();
   #pointsList = new PointsList();
-  #sort = new Sort(this.#currentSortType);
+  #sort = null;
   #tripPointsPresenter = new Map();
 
   constructor(tripRouteContainer, pointsModel) {
@@ -54,6 +54,7 @@ class TripRoutePresenter {
   }
 
   #clearTripPoints = () => {
+    removeElement(this.#pointsList);
     this.#tripPointsPresenter.forEach((presenter) => presenter.destroy());
   }
 
@@ -63,14 +64,23 @@ class TripRoutePresenter {
     if (!this.points.length) {
       this.#renderEmptyTripRoute();
     } else {
-      renderElement(this.#tripRouteContainer, this.#sort);
-      this.#sort.setSortTypeChange(this.#handleSortChange);
-      renderElement(this.#tripRouteContainer, this.#pointsList);
+      this.#renderSort();
       this.#renderTripPoints();
     }
   }
 
+  #clearSort = () => {
+    removeElement(this.#sort);
+  }
+
+  #renderSort = () => {
+    this.#sort = new Sort(this.#currentSortType);
+    renderElement(this.#tripRouteContainer, this.#sort);
+    this.#sort.setSortTypeChange(this.#handleSortChange);
+  }
+
   #renderTripPoints = () => {
+    renderElement(this.#tripRouteContainer, this.#pointsList);
     for (const point of this.points) {
       this.#renderPoint(point);
     }
@@ -123,6 +133,10 @@ class TripRoutePresenter {
       return;
     }
     this.#currentSortType = sortType;
+
+    this.#clearSort();
+    this.#renderSort();
+
     this.#clearTripPoints();
     this.#renderTripPoints();
   }
