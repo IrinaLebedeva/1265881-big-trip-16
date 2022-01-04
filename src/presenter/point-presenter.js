@@ -4,8 +4,12 @@ import {Point} from '../view/point.js';
 import {
   removeElement,
   renderElement,
-  replaceElement
+  replaceElement,
 } from '../utils/manipulate-dom-element.js';
+import {
+  UserActionType,
+  ViewUpdateType,
+} from '../const.js';
 
 const Mode = {
   DEFAULT: 'VIEW',
@@ -47,7 +51,11 @@ class PointPresenter {
     this.#pointListItem.setFavouriteClickHandler(this.#handleFavouriteClick);
 
     this.#pointEditListItem.setSaveClickHandler((updatedPointItem) => {
-      this.#pointUpdateHandler(updatedPointItem);
+      this.#pointUpdateHandler(
+        UserActionType.UPDATE_POINT,
+        ViewUpdateType.PATCH,
+        updatedPointItem
+      );
       this.#replaceFormToPoint();
     });
 
@@ -121,7 +129,11 @@ class PointPresenter {
   }
 
   #handleFavouriteClick = () => {
-    this.#pointUpdateHandler({...this.#pointItem, isFavorite: !this.#pointItem.isFavorite});
+    this.#pointUpdateHandler(
+      UserActionType.UPDATE_POINT,
+      ViewUpdateType.PATCH,
+      {...this.#pointItem, isFavorite: !this.#pointItem.isFavorite}
+    );
   }
 }
 

@@ -6,35 +6,50 @@ import {Sort} from '../view/sort.js';
 import {
   DEFAULT_SORT_TYPE,
   SortType,
+  UserActionType,
+  ViewUpdateType,
 } from '../const.js';
 import {
   sortPointsByDateDesc,
   sortPointsByPriceDesc,
   sortPointsByTimeDesc,
 } from '../utils/sort-points.js';
-import {updateArrayElement} from '../utils/update-array-element.js';
 
 class TripRoutePresenter {
   #currentSortType = DEFAULT_SORT_TYPE;
+  #pointsModel = null;
   #tripRouteContainer = null;
-  #tripPoints = [];
 
   #emptyPointsListMessage = new EmptyPointsListMessage();
   #pointsList = new PointsList();
   #sort = new Sort();
   #tripPointsPresenter = new Map();
 
-  constructor(tripRouteContainer) {
+  constructor(tripRouteContainer, pointsModel) {
     this.#tripRouteContainer = tripRouteContainer;
+    this.#pointsModel = pointsModel;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
-  /**
-   * @param {Object[]} tripPoints
-   */
-  init = (tripPoints) => {
-    this.#tripPoints = tripPoints;
-    this.#sortPoints(this.#currentSortType);
+  get points() {
+    switch (this.#currentSortType) {
+      case SortType.DAY_DESC:
+        this.#pointsModel.points.sort(sortPointsByDateDesc);
+        break;
+      case SortType.TIME_DESC:
+        this.#pointsModel.points.sort(sortPointsByTimeDesc);
+        break;
+      case SortType.PRICE_DESC:
+        this.#pointsModel.points.sort(sortPointsByPriceDesc);
+        break;
+      default:
+        this.#pointsModel.points.sort(sortPointsByDateDesc);
+    }
+    return this.#pointsModel.points;
+  }
 
+  init = () => {
     this.#renderTripRoute();
   }
 
@@ -45,7 +60,7 @@ class TripRoutePresenter {
   #renderEmptyTripRoute = () => renderElement(this.#tripRouteContainer, this.#emptyPointsListMessage);
 
   #renderTripRoute = () => {
-    if (!this.#tripPoints.length) {
+    if (!this.points.length) {
       this.#renderEmptyTripRoute();
     } else {
       renderElement(this.#tripRouteContainer, this.#sort);
@@ -56,7 +71,7 @@ class TripRoutePresenter {
   }
 
   #renderTripPoints = () => {
-    for (const point of this.#tripPoints) {
+    for (const point of this.points) {
       this.#renderPoint(point);
     }
   }
@@ -65,7 +80,7 @@ class TripRoutePresenter {
    * @param {Object} pointItem
    */
   #renderPoint = (pointItem) => {
-    const pointPresenter = new PointPresenter(this.#pointsList, this.#handlePointUpdate, this.#handleModeUpdate);
+    const pointPresenter = new PointPresenter(this.#pointsList, this.#handleViewAction, this.#handleModeUpdate);
     pointPresenter.init(pointItem);
     this.#tripPointsPresenter.set(pointItem.id, pointPresenter);
   }
@@ -74,35 +89,42 @@ class TripRoutePresenter {
     this.#tripPointsPresenter.forEach((presenter) => presenter.resetView());
   }
 
-  #handlePointUpdate = (updatedPoint) => {
-    this.#tripPoints = updateArrayElement(this.#tripPoints, updatedPoint);
-    this.#tripPointsPresenter.get(updatedPoint.id).init(updatedPoint);
+  #handleViewAction = (userActionType, viewUpdateType, updatePoint) => {
+    switch (userActionType) {
+      case UserActionType.ADD_POINT:
+        this.#pointsModel.addPoint(viewUpdateType, updatePoint);
+        break;
+      case UserActionType.UPDATE_POINT:
+        this.#pointsModel.updatePoint(viewUpdateType, updatePoint);
+        break;
+      case UserActionType.DELETE_POINT:
+        this.#pointsModel.deletePoint(viewUpdateType, updatePoint);
+        break;
+    }
+  }
+
+  #handleModelEvent = (viewUpdateType, updatedData) => {
+    switch (viewUpdateType) {
+      case ViewUpdateType.PATCH:
+        //при обновлении задачи
+        this.#tripPointsPresenter.get(updatedData.id).init(updatedData);
+        break;
+      case ViewUpdateType.MINOR:
+        //обновить список (при удалении, добавлении)
+        break;
+      case ViewUpdateType.MAJOR:
+        //обновить всю страницу (при смене фильтра)
+        break;
+    }
   }
 
   #handleSortChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
-    this.#sortPoints(sortType);
+    this.#currentSortType = sortType;
     this.#clearTripPoints();
     this.#renderTripPoints();
-  }
-
-  #sortPoints = (sortType) => {
-    switch (sortType) {
-      case SortType.DAY_DESC:
-        this.#tripPoints.sort(sortPointsByDateDesc);
-        break;
-      case SortType.TIME_DESC:
-        this.#tripPoints.sort(sortPointsByTimeDesc);
-        break;
-      case SortType.PRICE_DESC:
-        this.#tripPoints.sort(sortPointsByPriceDesc);
-        break;
-      default:
-        this.#tripPoints.sort(sortPointsByDateDesc);
-    }
-    this.#currentSortType = sortType;
   }
 }
 
