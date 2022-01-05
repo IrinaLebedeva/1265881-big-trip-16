@@ -30,8 +30,22 @@ const ViewUpdateType = {
   MAJOR: 'MAJOR',
 };
 
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PAST: 'past',
+};
+
+const emptyPointsListMessageTypes = {
+  [FilterType.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterType.PAST]: 'There are no past events now',
+  [FilterType.FUTURE]: 'There are no future events now',
+};
+
 export {
   DEFAULT_SORT_TYPE,
+  emptyPointsListMessageTypes,
+  FilterType,
   pointTypes,
   SortType,
   UserActionType,

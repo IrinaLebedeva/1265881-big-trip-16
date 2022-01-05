@@ -66,10 +66,7 @@ class PointPresenter {
       this.#replaceFormToPoint();
     });
 
-    this.#pointEditListItem.setDeleteButtonClickHandler(() => {
-      this.#removePoint();
-      document.removeEventListener('keydown', this.#onEscapeKeyDown);
-    });
+    this.#pointEditListItem.setDeleteButtonClickHandler(this.#handleDeleteClick);
 
     if (this.#previousPointListItem === null || this.#previousPointEditListItem === null) {
       renderElement(this.#pointsContainer, this.#pointListItem);
@@ -126,16 +123,26 @@ class PointPresenter {
     }
   }
 
-  #removePoint = () => {
-    removeElement(this.#pointEditListItem);
-  }
-
   #handleFavouriteClick = () => {
     this.#pointUpdateHandler(
       UserActionType.UPDATE_POINT,
       ViewUpdateType.PATCH,
       {...this.#pointItem, isFavorite: !this.#pointItem.isFavorite}
     );
+  }
+
+  #removeEditPoint = () => {
+    removeElement(this.#pointEditListItem);
+  }
+
+  #handleDeleteClick = () => {
+    this.#removeEditPoint();
+    this.#pointUpdateHandler(
+      UserActionType.DELETE_POINT,
+      ViewUpdateType.MINOR,
+      this.#pointItem
+    );
+    document.removeEventListener('keydown', this.#onEscapeKeyDown);
   }
 }
 

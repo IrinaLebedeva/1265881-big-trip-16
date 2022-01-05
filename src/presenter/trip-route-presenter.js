@@ -1,10 +1,13 @@
 import {EmptyPointsListMessage} from '../view/empty-points-list-message.js';
+import {filter} from '../utils/filter.js';
 import {PointsList} from '../view/points-list.js';
 import {PointPresenter} from './point-presenter.js';
 import {removeElement, renderElement} from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
 import {
   DEFAULT_SORT_TYPE,
+  emptyPointsListMessageTypes,
+  FilterType,
   SortType,
   UserActionType,
   ViewUpdateType,
@@ -17,36 +20,44 @@ import {
 
 class TripRoutePresenter {
   #currentSortType = DEFAULT_SORT_TYPE;
+  #filterModel = null;
+  #filterType = FilterType.EVERYTHING;
   #pointsModel = null;
   #tripRouteContainer = null;
 
-  #emptyPointsListMessage = new EmptyPointsListMessage();
+  #emptyPointsListMessage = null;
   #pointsList = new PointsList();
   #sort = null;
   #tripPointsPresenter = new Map();
 
-  constructor(tripRouteContainer, pointsModel) {
+  constructor(tripRouteContainer, pointsModel, filterModel) {
     this.#tripRouteContainer = tripRouteContainer;
     this.#pointsModel = pointsModel;
+    this.#filterModel = filterModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
+    this.#filterType = this.#filterModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[this.#filterType](points);
+
     switch (this.#currentSortType) {
       case SortType.DAY_DESC:
-        this.#pointsModel.points.sort(sortPointsByDateDesc);
+        filteredPoints.sort(sortPointsByDateDesc);
         break;
       case SortType.TIME_DESC:
-        this.#pointsModel.points.sort(sortPointsByTimeDesc);
+        filteredPoints.sort(sortPointsByTimeDesc);
         break;
       case SortType.PRICE_DESC:
-        this.#pointsModel.points.sort(sortPointsByPriceDesc);
+        filteredPoints.sort(sortPointsByPriceDesc);
         break;
       default:
-        this.#pointsModel.points.sort(sortPointsByDateDesc);
+        filteredPoints.sort(sortPointsByDateDesc);
     }
-    return this.#pointsModel.points;
+    return filteredPoints;
   }
 
   init = () => {
@@ -57,6 +68,7 @@ class TripRoutePresenter {
     if (!this.points.length) {
       this.#renderEmptyTripRoute();
     } else {
+      this.#clearEmptyTripRoute();
       this.#renderSort();
       this.#renderTripPoints();
     }
@@ -75,9 +87,16 @@ class TripRoutePresenter {
     }
   }
 
-  #renderEmptyTripRoute = () => renderElement(this.#tripRouteContainer, this.#emptyPointsListMessage);
+  #renderEmptyTripRoute = () => {
+    this.#emptyPointsListMessage = new EmptyPointsListMessage(emptyPointsListMessageTypes[this.#filterModel.filter]);
+    renderElement(this.#tripRouteContainer, this.#emptyPointsListMessage);
+  }
 
-  #clearEmptyTripRoute = () => removeElement(this.#emptyPointsListMessage);
+  #clearEmptyTripRoute = () => {
+    if (this.#emptyPointsListMessage) {
+      removeElement(this.#emptyPointsListMessage);
+    }
+  }
 
   #renderSort = () => {
     this.#sort = new Sort(this.#currentSortType);

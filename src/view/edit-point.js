@@ -411,11 +411,14 @@ class EditPoint extends SmartView {
   removeElement = () => {
     super.removeElement();
 
-    this.#datepickerFrom.destroy();
-    this.#datepickerFrom = null;
-
-    this.#datepickerTo.destroy();
-    this.#datepickerTo = null;
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
   }
 }
 
