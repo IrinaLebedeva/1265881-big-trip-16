@@ -1,3 +1,4 @@
+import {AddPointPresenter} from './add-point-presenter.js';
 import {EmptyPointsListMessage} from '../view/empty-points-list-message.js';
 import {filter} from '../utils/filter.js';
 import {PointsList} from '../view/points-list.js';
@@ -19,6 +20,7 @@ import {
 } from '../utils/sort-points.js';
 
 class TripRoutePresenter {
+  #addPointPresenter = null;
   #currentSortType = DEFAULT_SORT_TYPE;
   #filterModel = null;
   #filterType = FilterType.EVERYTHING;
@@ -35,6 +37,7 @@ class TripRoutePresenter {
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
+    this.#addPointPresenter = new AddPointPresenter(this.#pointsList, this.#handleViewAction);
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
@@ -75,6 +78,8 @@ class TripRoutePresenter {
   }
 
   #clearTripRoute = (resetSortType = false) => {
+    this.#addPointPresenter.destroy();
+
     if (!this.points.length) {
       this.#clearEmptyTripRoute();
     } else {
@@ -130,6 +135,7 @@ class TripRoutePresenter {
   }
 
   #handleModeUpdate = () => {
+    this.#addPointPresenter.destroy();
     this.#tripPointsPresenter.forEach((presenter) => presenter.resetView());
   }
 
@@ -174,6 +180,12 @@ class TripRoutePresenter {
 
     this.#clearTripPoints();
     this.#renderTripPoints();
+  }
+
+  addPoint() {
+    this.#currentSortType = DEFAULT_SORT_TYPE;
+    this.#filterModel.setFilter(ViewUpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#addPointPresenter.init();
   }
 }
 

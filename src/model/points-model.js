@@ -28,6 +28,13 @@ class PointsModel extends AbstractObservable {
   };
 
   addPoint = (updateType, addedPoint) => {
+    /**
+     * @todo remove condition after stop working with mock data
+     */
+    if (addedPoint.id === 0) {
+      addedPoint.id = this.#points.length;
+    }
+
     this.#points = [
       addedPoint,
       ...this.#points,

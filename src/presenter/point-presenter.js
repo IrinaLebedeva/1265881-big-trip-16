@@ -51,11 +51,9 @@ class PointPresenter {
     this.#pointListItem.setFavouriteClickHandler(this.#handleFavouriteClick);
 
     this.#pointEditListItem.setSaveClickHandler((updatedPointItem) => {
-      const isMinorViewUpdate = this.#pointItem.basePrice !== updatedPointItem.basePrice;
-
       this.#pointUpdateHandler(
         UserActionType.UPDATE_POINT,
-        isMinorViewUpdate ? ViewUpdateType.MINOR : ViewUpdateType.PATCH,
+        ViewUpdateType.MINOR,
         updatedPointItem
       );
       this.#replaceFormToPoint();

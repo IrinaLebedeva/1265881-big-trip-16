@@ -16,10 +16,22 @@ const FLATPICKR_TO_DAYJS_DATE_TIME_FORMAT = 'DD/MM/YY HH:mm';
 const FLATPICKR_DATE_TIME_FORMAT = 'd/m/y H:i';
 const DATE_RANGE_MINUTES_GAP_MIN = 1;
 const PRICE_MIN = 1;
+const DEFAULT_POINT_TYPE = 'taxi';
 
 const getOffersByType = (type) => {
   const typeOffers = offersByPointTypes.find((offer) => offer.type === type);
   return (typeof typeOffers !== 'undefined') ? typeOffers.offers : null;
+};
+
+const BLANK_POINT = {
+  id: 0,
+  type: DEFAULT_POINT_TYPE,
+  destination: towns[0],
+  offers: null,
+  destinationInfo: generateDestinationInfo(),
+  basePrice: 1,
+  dateFrom: dayjs(),
+  dateTo: dayjs().add(DATE_RANGE_MINUTES_GAP_MIN, 'minute'),
 };
 
 /**
@@ -160,17 +172,8 @@ const createActionsTemplate = (id) => id ? createEditPointActionsTemplate() : cr
  * @param {Object} point
  * @returns {String}
  */
-const createEditPointTemplate = (point = {}) => {
-  const {
-    id = 0,
-    type = 'taxi',
-    destination = '',
-    offers = null,
-    destinationInfo = null,
-    basePrice = 1,
-    dateFrom = dayjs().format(DAYJS_DATE_TIME_FORMAT),
-    dateTo = dayjs().format(DAYJS_DATE_TIME_FORMAT),
-  } = point;
+const createEditPointTemplate = (point) => {
+  const {id, type, destination, offers, destinationInfo, basePrice, dateFrom, dateTo} = point;
 
   return `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
@@ -235,13 +238,11 @@ class EditPoint extends SmartView {
   #datepickerTo = null;
   _data = null;
 
-  constructor(point) {
+  constructor(point = BLANK_POINT) {
     super();
     this._data = point;
 
-    this.#dateFromElement = this.element.querySelector('input[name=event-start-time]');
-    this.#dateToElement = this.element.querySelector('input[name=event-end-time]');
-    this.#priceElement = this.element.querySelector('input[name=event-price]');
+    this.#setInnerElements();
 
     this.#setInnerHandlers();
     this.#setDatepickers();
@@ -276,6 +277,16 @@ class EditPoint extends SmartView {
     this._callback.deleteButtonClick();
   }
 
+  setCancelClickHandler = (callback) => {
+    this._callback.cancelButtonClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelClickHandler);
+  }
+
+  #cancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.cancelButtonClick();
+  }
+
   setRollupButtonClickHandler = (callback) => {
     this._callback.rollupButtonClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupButtonClickHandler);
@@ -287,12 +298,17 @@ class EditPoint extends SmartView {
   }
 
   restoreHandlers = () => {
+    this.#setInnerElements();
     this.#setInnerHandlers();
     this.#setDatepickers();
 
     this.setSaveClickHandler(this._callback.saveClick);
-    this.setDeleteButtonClickHandler(this._callback.deleteButtonClick);
-    this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
+    if (this._data.id) {
+      this.setDeleteButtonClickHandler(this._callback.deleteButtonClick);
+      this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
+    } else {
+      this.setCancelClickHandler(this._callback.cancelButtonClick);
+    }
   }
 
   reset = (point) => {
@@ -302,6 +318,12 @@ class EditPoint extends SmartView {
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('click', this.#typeClickHandler);
     this.element.querySelector('input[name=event-destination]').addEventListener('change', this.#destinationChangeHandler);
+  }
+
+  #setInnerElements = () => {
+    this.#dateFromElement = this.element.querySelector('input[name=event-start-time]');
+    this.#dateToElement = this.element.querySelector('input[name=event-end-time]');
+    this.#priceElement = this.element.querySelector('input[name=event-price]');
   }
 
   #setDatepickers = () => {
@@ -366,8 +388,7 @@ class EditPoint extends SmartView {
     const dateFrom = dayjs(this.#dateFromElement.value, FLATPICKR_TO_DAYJS_DATE_TIME_FORMAT);
     const dateTo = dayjs(this.#dateToElement.value, FLATPICKR_TO_DAYJS_DATE_TIME_FORMAT);
     const diffInMinutes = dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
-
-    return diffInMinutes > DATE_RANGE_MINUTES_GAP_MIN;
+    return diffInMinutes >= DATE_RANGE_MINUTES_GAP_MIN;
   }
 
   /**

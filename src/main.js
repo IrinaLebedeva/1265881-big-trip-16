@@ -29,3 +29,8 @@ const filtersPresenter = new FiltersPresenter(filtersContainerElement, filtersMo
 
 tripRoutePresenter.init();
 filtersPresenter.init();
+
+document.querySelector('.trip-main__event-add-btn').addEventListener('click', (evt) => {
+  evt.preventDefault();
+  tripRoutePresenter.addPoint();
+});
