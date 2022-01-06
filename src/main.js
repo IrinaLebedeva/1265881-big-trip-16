@@ -6,6 +6,7 @@ import {offersByPointTypes} from './mock/offer.js';
 import {PointsModel} from './model/points-model.js';
 import {renderElement} from './utils/manipulate-dom-element.js';
 import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
+import {HeaderMenuItems} from "./const";
 
 const POINTS_COUNT = 5;
 
@@ -22,7 +23,26 @@ const filtersContainerElement = headerElement.querySelector('.trip-controls__fil
 const mainElement = document.querySelector('.page-main');
 const eventsContainerElement = mainElement.querySelector('.trip-events');
 
-renderElement(navigationContainerElement, new HeaderMenu());
+const headerMenuComponent = new HeaderMenu();
+renderElement(navigationContainerElement, headerMenuComponent);
+
+const handleHeaderMenuClick = (headerMenuItem) => {
+  switch (headerMenuItem) {
+    case HeaderMenuItems.TRIP_ROUTE:
+      // Показать фильтры
+      // Показать точки
+      // Скрыть статистику
+      break;
+    case HeaderMenuItems.STATISTICS:
+      // СкрытьПоказать фильтры
+      // Скрыть точки
+      // Показать статистику
+      break;
+    default:
+    //повтор для TRIP_ROUTE
+  }
+};
+headerMenuComponent.setHeaderMenuClickHandler(handleHeaderMenuClick);
 
 const tripRoutePresenter = new TripRoutePresenter(eventsContainerElement, pointsModel, filtersModel);
 const filtersPresenter = new FiltersPresenter(filtersContainerElement, filtersModel, pointsModel);

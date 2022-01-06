@@ -42,10 +42,16 @@ const emptyPointsListMessageTypes = {
   [FilterType.FUTURE]: 'There are no future events now',
 };
 
+const HeaderMenuItems = {
+  TRIP_ROUTE: 'TRIP_ROUTE',
+  STATISTICS: 'STATISTICS',
+};
+
 export {
   DEFAULT_SORT_TYPE,
   emptyPointsListMessageTypes,
   FilterType,
+  HeaderMenuItems,
   pointTypes,
   SortType,
   UserActionType,
