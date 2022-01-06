@@ -9,7 +9,7 @@ import {removeElement, renderElement} from './utils/manipulate-dom-element.js';
 import {Statistics} from './view/statistics.js';
 import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
 
-const POINTS_COUNT = 5;
+const POINTS_COUNT = 15;
 
 const points = Array(POINTS_COUNT).fill(null).map((_, index) => generatePoint(index + 1, offersByPointTypes));
 const pointsModel = new PointsModel();
@@ -36,7 +36,7 @@ document.querySelector('.trip-main__event-add-btn').addEventListener('click', (e
 const headerMenuComponent = new HeaderMenu();
 renderElement(navigationContainerElement, headerMenuComponent);
 
-const statisticsComponent = new Statistics();
+let statisticsComponent = null;
 
 const handleHeaderMenuClick = (headerMenuItem) => {
   switch (headerMenuItem) {
@@ -48,6 +48,7 @@ const handleHeaderMenuClick = (headerMenuItem) => {
     case HeaderMenuItems.STATISTICS:
       filtersPresenter.destroy();
       tripRoutePresenter.destroy();
+      statisticsComponent = new Statistics(pointsModel.points);
       renderElement(bodyContainerElement, statisticsComponent);
       break;
     default:
@@ -58,4 +59,6 @@ const handleHeaderMenuClick = (headerMenuItem) => {
 };
 
 headerMenuComponent.setHeaderMenuClickHandler(handleHeaderMenuClick);
+
+headerMenuComponent.setMenuItem(HeaderMenuItems.TRIP_ROUTE);
 handleHeaderMenuClick(HeaderMenuItems.TRIP_ROUTE);

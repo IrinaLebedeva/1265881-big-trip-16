@@ -70,7 +70,7 @@ const replaceElement = (newElement, oldElement) => {
  */
 const removeElement = (element) => {
   if (element === null) {
-    throw new Error('Can\t remove unexisting element');
+    return;
   }
 
   if (element instanceof AbstractView) {
