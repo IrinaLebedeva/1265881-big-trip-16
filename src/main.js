@@ -2,11 +2,12 @@ import {FiltersModel} from './model/filters-model.js';
 import {FiltersPresenter} from './presenter/filters-presenter.js';
 import {generatePoint} from './mock/point.js';
 import {HeaderMenu} from './view/header-menu.js';
+import {HeaderMenuItems} from './const.js';
 import {offersByPointTypes} from './mock/offer.js';
 import {PointsModel} from './model/points-model.js';
-import {renderElement} from './utils/manipulate-dom-element.js';
+import {removeElement, renderElement} from './utils/manipulate-dom-element.js';
 import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
-import {HeaderMenuItems} from "./const";
+import {Statistics} from './view/statistics.js';
 
 const POINTS_COUNT = 5;
 
@@ -21,36 +22,40 @@ const navigationContainerElement = headerElement.querySelector('.trip-controls__
 const filtersContainerElement = headerElement.querySelector('.trip-controls__filters');
 
 const mainElement = document.querySelector('.page-main');
+const bodyContainerElement = mainElement.querySelector('.page-body__container');
 const eventsContainerElement = mainElement.querySelector('.trip-events');
-
-const headerMenuComponent = new HeaderMenu();
-renderElement(navigationContainerElement, headerMenuComponent);
-
-const handleHeaderMenuClick = (headerMenuItem) => {
-  switch (headerMenuItem) {
-    case HeaderMenuItems.TRIP_ROUTE:
-      // Показать фильтры
-      // Показать точки
-      // Скрыть статистику
-      break;
-    case HeaderMenuItems.STATISTICS:
-      // СкрытьПоказать фильтры
-      // Скрыть точки
-      // Показать статистику
-      break;
-    default:
-    //повтор для TRIP_ROUTE
-  }
-};
-headerMenuComponent.setHeaderMenuClickHandler(handleHeaderMenuClick);
 
 const tripRoutePresenter = new TripRoutePresenter(eventsContainerElement, pointsModel, filtersModel);
 const filtersPresenter = new FiltersPresenter(filtersContainerElement, filtersModel, pointsModel);
-
-tripRoutePresenter.init();
-filtersPresenter.init();
 
 document.querySelector('.trip-main__event-add-btn').addEventListener('click', (evt) => {
   evt.preventDefault();
   tripRoutePresenter.addPoint();
 });
+
+const headerMenuComponent = new HeaderMenu();
+renderElement(navigationContainerElement, headerMenuComponent);
+
+const statisticsComponent = new Statistics();
+
+const handleHeaderMenuClick = (headerMenuItem) => {
+  switch (headerMenuItem) {
+    case HeaderMenuItems.TRIP_ROUTE:
+      tripRoutePresenter.init();
+      filtersPresenter.init();
+      removeElement(statisticsComponent);
+      break;
+    case HeaderMenuItems.STATISTICS:
+      filtersPresenter.destroy();
+      tripRoutePresenter.destroy();
+      renderElement(bodyContainerElement, statisticsComponent);
+      break;
+    default:
+      tripRoutePresenter.init();
+      filtersPresenter.init();
+      removeElement(statisticsComponent);
+  }
+};
+
+headerMenuComponent.setHeaderMenuClickHandler(handleHeaderMenuClick);
+handleHeaderMenuClick(HeaderMenuItems.TRIP_ROUTE);
