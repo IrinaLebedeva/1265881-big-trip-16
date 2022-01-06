@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+
 dayjs.extend(duration);
 
 /**
@@ -20,12 +21,9 @@ const getFormattedDuration = (diffInMilliseconds) => {
   if (datesDiffDuration.days() > 0) {
     formattedDiff.push(`${formatNumberInTwoDigits(datesDiffDuration.days())}D`);
   }
-  if (datesDiffDuration.hours() > 0) {
-    formattedDiff.push(`${formatNumberInTwoDigits(datesDiffDuration.hours())}H`);
-  }
-  if (datesDiffDuration.minutes() > 0) {
-    formattedDiff.push(`${formatNumberInTwoDigits(datesDiffDuration.minutes())}M`);
-  }
+  formattedDiff.push(`${formatNumberInTwoDigits(datesDiffDuration.hours())}H`);
+  formattedDiff.push(`${formatNumberInTwoDigits(datesDiffDuration.minutes())}M`);
+
   return formattedDiff.join(' ');
 };
 
