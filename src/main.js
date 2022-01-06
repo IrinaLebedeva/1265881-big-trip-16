@@ -9,7 +9,7 @@ import {removeElement, renderElement} from './utils/manipulate-dom-element.js';
 import {Statistics} from './view/statistics.js';
 import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
 
-const POINTS_COUNT = 15;
+const POINTS_COUNT = 5;
 
 const points = Array(POINTS_COUNT).fill(null).map((_, index) => generatePoint(index + 1, offersByPointTypes));
 const pointsModel = new PointsModel();
@@ -28,11 +28,6 @@ const eventsContainerElement = mainElement.querySelector('.trip-events');
 const tripRoutePresenter = new TripRoutePresenter(eventsContainerElement, pointsModel, filtersModel);
 const filtersPresenter = new FiltersPresenter(filtersContainerElement, filtersModel, pointsModel);
 
-document.querySelector('.trip-main__event-add-btn').addEventListener('click', (evt) => {
-  evt.preventDefault();
-  tripRoutePresenter.addPoint();
-});
-
 const headerMenuComponent = new HeaderMenu();
 renderElement(navigationContainerElement, headerMenuComponent);
 
@@ -41,7 +36,9 @@ let statisticsComponent = null;
 const handleHeaderMenuClick = (headerMenuItem) => {
   switch (headerMenuItem) {
     case HeaderMenuItems.TRIP_ROUTE:
+      tripRoutePresenter.destroy();
       tripRoutePresenter.init();
+      filtersPresenter.destroy();
       filtersPresenter.init();
       removeElement(statisticsComponent);
       break;
@@ -52,7 +49,9 @@ const handleHeaderMenuClick = (headerMenuItem) => {
       renderElement(bodyContainerElement, statisticsComponent);
       break;
     default:
+      tripRoutePresenter.destroy();
       tripRoutePresenter.init();
+      filtersPresenter.destroy();
       filtersPresenter.init();
       removeElement(statisticsComponent);
   }
@@ -60,5 +59,16 @@ const handleHeaderMenuClick = (headerMenuItem) => {
 
 headerMenuComponent.setHeaderMenuClickHandler(handleHeaderMenuClick);
 
-headerMenuComponent.setMenuItem(HeaderMenuItems.TRIP_ROUTE);
-handleHeaderMenuClick(HeaderMenuItems.TRIP_ROUTE);
+const showTripRouteTab = () => {
+  headerMenuComponent.setMenuItem(HeaderMenuItems.TRIP_ROUTE);
+  handleHeaderMenuClick(HeaderMenuItems.TRIP_ROUTE);
+};
+
+const handleAddPointClick = (evt) => {
+  evt.preventDefault();
+  showTripRouteTab();
+  tripRoutePresenter.addPoint();
+};
+
+showTripRouteTab();
+document.querySelector('.trip-main__event-add-btn').addEventListener('click', handleAddPointClick);
