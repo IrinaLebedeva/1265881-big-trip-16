@@ -6,8 +6,8 @@ import {HeaderMenuItems} from './const.js';
 import {offersByPointTypes} from './mock/offer.js';
 import {PointsModel} from './model/points-model.js';
 import {removeElement, renderElement} from './utils/manipulate-dom-element.js';
-import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
 import {Statistics} from './view/statistics.js';
+import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
 
 const POINTS_COUNT = 5;
 
