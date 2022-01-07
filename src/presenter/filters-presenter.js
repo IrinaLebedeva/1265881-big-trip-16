@@ -1,10 +1,13 @@
 import {Filters} from '../view/filters.js';
 import {
+  FilterType,
+  ViewUpdateType
+} from '../const.js';
+import {
   removeElement,
   renderElement,
   replaceElement
 } from '../utils/manipulate-dom-element.js';
-import {ViewUpdateType} from '../const.js';
 
 class FiltersPresenter {
   #filterContainer = null;
@@ -47,6 +50,16 @@ class FiltersPresenter {
     }
 
     this.#filtersModel.setFilter(ViewUpdateType.MAJOR, filterType);
+  }
+
+  destroy = () => {
+    removeElement(this.#filterComponent);
+    this.#filterComponent = null;
+
+    this.#filtersModel.removeObserver(this.#handleModelEvent);
+    this.#pointsModel.removeObserver(this.#handleModelEvent);
+
+    this.#filtersModel.setFilter(ViewUpdateType.MAJOR, FilterType.EVERYTHING);
   }
 }
 

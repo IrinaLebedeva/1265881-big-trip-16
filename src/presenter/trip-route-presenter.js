@@ -38,8 +38,6 @@ class TripRoutePresenter {
     this.#filterModel = filterModel;
 
     this.#addPointPresenter = new AddPointPresenter(this.#pointsList, this.#handleViewAction);
-    this.#pointsModel.addObserver(this.#handleModelEvent);
-    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
@@ -64,7 +62,17 @@ class TripRoutePresenter {
   }
 
   init = () => {
+    this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
+
     this.#renderTripRoute();
+  }
+
+  destroy = () => {
+    this.#pointsModel.removeObserver(this.#handleModelEvent);
+    this.#filterModel.removeObserver(this.#handleModelEvent);
+
+    this.#clearTripRoute(true);
   }
 
   #renderTripRoute = () => {
