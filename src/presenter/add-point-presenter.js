@@ -1,3 +1,9 @@
+import dayjs from 'dayjs';
+import {
+  DATE_RANGE_MINUTES_GAP_MIN,
+  UserActionType,
+  ViewUpdateType,
+} from '../const.js';
 import {EditPoint} from '../view/edit-point.js';
 import {isEscapeEvent} from '../utils/detect-event.js';
 import {
@@ -5,16 +11,51 @@ import {
   renderElement,
   RenderPosition,
 } from '../utils/manipulate-dom-element.js';
-import {UserActionType, ViewUpdateType} from '../const.js';
+
+const DEFAULT_POINT_TYPE = 'taxi';
+
+const BLANK_POINT = {
+  id: 0,
+  type: DEFAULT_POINT_TYPE,
+  destination: null,
+  offers: null,
+  destinationInfo: null,
+  basePrice: 1,
+  dateFrom: dayjs(),
+  dateTo: dayjs().add(DATE_RANGE_MINUTES_GAP_MIN, 'minute'),
+};
 
 class AddPointPresenter {
   #pointsContainer = null;
   #pointEditListItem = null;
   #pointUpdateHandler = null;
 
-  constructor(pointsContainer, pointUpdateHandler) {
+  #offersModel = null;
+  #destinations = null;
+  #destinationsModel = null;
+
+  constructor(pointsContainer, pointUpdateHandler, offersModel, destinationsModel) {
     this.#pointsContainer = pointsContainer;
     this.#pointUpdateHandler = pointUpdateHandler;
+
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
+    this.#destinations = this.#destinationsModel.destinations;
+  }
+
+  #getBlankPoint = () => {
+    if (!this.#destinations) {
+      return BLANK_POINT;
+    }
+    const firstDestination = this.#destinations.find((element, index) => index === 0);
+    return {
+      ...BLANK_POINT,
+      destination: firstDestination.name,
+      destinationInfo: {
+        description: firstDestination.description,
+        pictures: firstDestination.pictures,
+      }
+    };
   }
 
   init = () => {
@@ -22,7 +63,7 @@ class AddPointPresenter {
       return;
     }
 
-    this.#pointEditListItem = new EditPoint();
+    this.#pointEditListItem = new EditPoint(this.#getBlankPoint(), this.#offersModel, this.#destinationsModel);
     this.#pointEditListItem.setSaveClickHandler(this.#handleSaveClick);
     this.#pointEditListItem.setCancelClickHandler(this.#handleCancelClick);
 

@@ -1,10 +1,23 @@
 import {AbstractObservable} from '../utils/abstract-observable.js';
+import {ViewUpdateType} from '../const.js';
 
 class PointsModel extends AbstractObservable {
+  #apiService = null;
   #points = [];
 
-  set points(points) {
-    this.#points = [...points];
+  constructor(apiService) {
+    super();
+    this.#apiService = apiService;
+  }
+
+  init = async () => {
+    try {
+      const points = await this.#apiService.points;
+      this.#points = points.map((point, index) => this.#adaptToClient(point, index));
+    } catch (error) {
+      this.#points = [];
+    }
+    this._notify(ViewUpdateType.INIT);
   }
 
   get points() {
@@ -28,9 +41,6 @@ class PointsModel extends AbstractObservable {
   };
 
   addPoint = (updateType, addedPoint) => {
-    /**
-     * @todo remove condition after stop working with mock data
-     */
     if (addedPoint.id === 0) {
       addedPoint.id = this.#points.length;
     }
@@ -56,6 +66,38 @@ class PointsModel extends AbstractObservable {
     ];
 
     this._notify(updateType);
+  }
+
+  #adaptToClient = (point, pointIndex) => {
+    let destinationInfo = {};
+    if (point['destination']['description'] !== null) {
+      destinationInfo.description = point['destination']['description'];
+    }
+    if (point['destination']['pictures'] !== null) {
+      destinationInfo.pictures = point['destination']['pictures'];
+    }
+    if (!Object.keys(destinationInfo).length) {
+      destinationInfo = null;
+    }
+
+    const adaptedPoint = {
+      ...point,
+      id: pointIndex + 1,
+      backendId: point['id'],
+      basePrice: point['base_price'],
+      dateFrom: new Date(point['date_from']),
+      dateTo: new Date(point['date_to']),
+      isFavorite: point['is_favorite'],
+      destinationInfo,
+      destination: point['destination']['name'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
   }
 }
 

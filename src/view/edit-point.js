@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import {
+  DATE_RANGE_MINUTES_GAP_MIN,
+  pointTypes
+} from '../const.js';
 import flatpickr from 'flatpickr';
-import {generateDestinationInfo} from '../mock/destination-info.js';
-import {offersByPointTypes} from '../mock/offer.js';
-import {pointTypes} from '../const.js';
 import {SmartView} from './smart-view.js';
-import {towns} from '../mock/point.js';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
@@ -14,24 +14,11 @@ dayjs.extend(customParseFormat);
 const DAYJS_DATE_TIME_FORMAT = 'YYYY/MM/DD HH:mm';
 const FLATPICKR_TO_DAYJS_DATE_TIME_FORMAT = 'DD/MM/YY HH:mm';
 const FLATPICKR_DATE_TIME_FORMAT = 'd/m/y H:i';
-const DATE_RANGE_MINUTES_GAP_MIN = 1;
 const PRICE_MIN = 1;
-const DEFAULT_POINT_TYPE = 'taxi';
 
-const getOffersByType = (type) => {
-  const typeOffers = offersByPointTypes.find((offer) => offer.type === type);
+const getOffersByType = (type, availableOffers) => {
+  const typeOffers = availableOffers.find((offer) => offer.type === type);
   return (typeof typeOffers !== 'undefined') ? typeOffers.offers : null;
-};
-
-const BLANK_POINT = {
-  id: 0,
-  type: DEFAULT_POINT_TYPE,
-  destination: towns[0],
-  offers: null,
-  destinationInfo: generateDestinationInfo(),
-  basePrice: 1,
-  dateFrom: dayjs(),
-  dateTo: dayjs().add(DATE_RANGE_MINUTES_GAP_MIN, 'minute'),
 };
 
 /**
@@ -61,7 +48,7 @@ const createTypesTemplate = (id, currentType) => pointTypes.map((type) => create
  */
 const createTownTemplate = (town) => `<option value="${town}"></option>`;
 
-const createTownsTemplate = () => towns.map((town) => createTownTemplate(town)).join('');
+const createTownsTemplate = (destinations) => destinations.map((destination) => createTownTemplate(destination.name)).join('');
 
 /**
  * @param {Number} pointId
@@ -92,10 +79,11 @@ const createOfferTemplate = (pointId, offer, pointOffers) => {
  * @param {Number} pointId
  * @param {String} type
  * @param {Object[]} pointOffers
+ * @param {Object[]} availableOffers
  * @returns {String}
  */
-const createOffersListTemplate = (pointId, type, pointOffers) => {
-  const offersByType = getOffersByType(type);
+const createOffersListTemplate = (pointId, type, pointOffers, availableOffers) => {
+  const offersByType = getOffersByType(type, availableOffers);
   if (!offersByType) {
     return '';
   }
@@ -107,17 +95,18 @@ const createOffersListTemplate = (pointId, type, pointOffers) => {
  * @param {Number} pointId
  * @param {String} type
  * @param {Object[]} offers
+ * @param {Object[]} availableOffers
  * @returns {String}
  */
-const createOffersTemplate = (pointId, type, offers) => {
-  if (!getOffersByType(type)) {
+const createOffersTemplate = (pointId, type, offers, availableOffers) => {
+  if (!getOffersByType(type, availableOffers)) {
     return '';
   }
 
   return `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-      ${createOffersListTemplate(pointId, type, offers)}
+      ${createOffersListTemplate(pointId, type, offers, availableOffers)}
     </div>
   </section>
   `;
@@ -170,9 +159,11 @@ const createActionsTemplate = (id) => id ? createEditPointActionsTemplate() : cr
 
 /**
  * @param {Object} point
+ * @param {Object[]} destinations
+ * @param {Object[]} availableOffers
  * @returns {String}
  */
-const createEditPointTemplate = (point) => {
+const createEditPointTemplate = (point, destinations, availableOffers) => {
   const {id, type, destination, offers, destinationInfo, basePrice, dateFrom, dateTo} = point;
 
   return `<li class="trip-events__item">
@@ -199,7 +190,7 @@ const createEditPointTemplate = (point) => {
           </label>
           <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination}" list="destination-list-${id}">
           <datalist id="destination-list-${id}">
-            ${createTownsTemplate()}
+            ${createTownsTemplate(destinations)}
           </datalist>
         </div>
 
@@ -223,7 +214,7 @@ const createEditPointTemplate = (point) => {
 
       </header>
       <section class="event__details">
-        ${createOffersTemplate(id, type, offers)}
+        ${createOffersTemplate(id, type, offers, availableOffers)}
         ${createDestinationTemplate(destinationInfo)}
       </section>
     </form>
@@ -238,9 +229,18 @@ class EditPoint extends SmartView {
   #datepickerTo = null;
   _data = null;
 
-  constructor(point = BLANK_POINT) {
+  #destinations = null;
+  #destinationsModel = null;
+  #offers = null;
+  #offersModel = null;
+
+  constructor(point, offersModel, destinationsModel) {
     super();
     this._data = point;
+    this.#offersModel = offersModel;
+    this.#offers = this.#offersModel.offers;
+    this.#destinationsModel = destinationsModel;
+    this.#destinations = this.#destinationsModel.destinations;
 
     this.#setInnerElements();
 
@@ -252,7 +252,7 @@ class EditPoint extends SmartView {
    * @return {String}
    */
   get template() {
-    return createEditPointTemplate(this._data);
+    return createEditPointTemplate(this._data, this.#destinations, this.#offers);
   }
 
   setSaveClickHandler = (callback) => {
@@ -366,11 +366,17 @@ class EditPoint extends SmartView {
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
     let newDestination = this.element.querySelector('input[name=event-destination]').value.trim();
-    let newDestinationInfo = generateDestinationInfo();
+    let newDestinationInfo = null;
 
-    if (!this.#isValidDestination(newDestination)) {
+    const destinationInfo = this.#getDestinationInfoByName(newDestination);
+    if (destinationInfo === undefined) {
       newDestination = this._data.destination;
       newDestinationInfo = this._data.destinationInfo;
+    } else {
+      newDestinationInfo = {
+        description: destinationInfo.description,
+        pictures: destinationInfo.pictures,
+      };
     }
 
     this.updateData({
@@ -379,7 +385,7 @@ class EditPoint extends SmartView {
     });
   }
 
-  #isValidDestination = (newDestination) => towns.find((town) => town === newDestination) !== undefined;
+  #getDestinationInfoByName = (newDestination) => this.#destinations.find((destination) => destination.name === newDestination);
 
   /**
    * @returns {boolean} true, if dates range is valid
@@ -407,7 +413,7 @@ class EditPoint extends SmartView {
   #parseDataToPoint = (data) => {
     const point = data;
 
-    const offersByType = getOffersByType(point.type);
+    const offersByType = getOffersByType(point.type, this.#offers);
     const selectedOffers = [];
     this.element.querySelectorAll('input[name=event-offer]:checked').forEach((element) => selectedOffers.push(element.value));
 
