@@ -81,6 +81,7 @@ class PointPresenter {
 
   resetView = () => {
     if (this.#mode === Mode.EDIT) {
+      this.#pointEditListItem.reset(this.#pointItem);
       this.#replaceFormToPoint();
     }
   }
