@@ -10,7 +10,7 @@ class PointApiService extends ApiService {
 
   updatePoint = async (point) => {
     const response = await this.load({
-      url: `points/${point.id}`,
+      url: `points/${point.backendId}`,
       method: ApiMethod.PUT,
       body: JSON.stringify(this.#adaptToServer(point)),
       headers: new Headers({'Content-Type': 'application/json'}),

@@ -24,20 +24,26 @@ class PointsModel extends AbstractObservable {
     return this.#points;
   }
 
-  updatePoint = (updateType, updatedPoint) => {
+  updatePoint = async (updateType, updatedPoint) => {
     const updateElementIndex = this.#points.findIndex((item) => item.id === updatedPoint.id);
 
     if (updateElementIndex === -1) {
       throw new Error('Can\'t update unexisting point');
     }
+    try {
+      const response = await this.#apiService.updatePoint(updatedPoint);
+      const updatedPointFromServer = this.#adaptToClient(response);
 
-    this.#points = [
-      ...this.#points.slice(0, updateElementIndex),
-      updatedPoint,
-      ...this.#points.slice(updateElementIndex + 1)
-    ];
+      this.#points = [
+        ...this.#points.slice(0, updateElementIndex),
+        updatedPointFromServer,
+        ...this.#points.slice(updateElementIndex + 1)
+      ];
 
-    this._notify(updateType, updatedPoint);
+      this._notify(updateType, updatedPointFromServer);
+    } catch (error) {
+      throw new Error('Can\'t update point');
+    }
   };
 
   addPoint = (updateType, addedPoint) => {
@@ -68,7 +74,7 @@ class PointsModel extends AbstractObservable {
     this._notify(updateType);
   }
 
-  #adaptToClient = (point, pointIndex) => {
+  #adaptToClient = (point) => {
     let destinationInfo = {};
     if (point['destination']['description'] !== null) {
       destinationInfo.description = point['destination']['description'];
@@ -82,7 +88,7 @@ class PointsModel extends AbstractObservable {
 
     const adaptedPoint = {
       ...point,
-      id: pointIndex + 1,
+      id: Number(point['id']) + 1,
       backendId: point['id'],
       basePrice: point['base_price'],
       dateFrom: new Date(point['date_from']),
