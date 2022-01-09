@@ -27,10 +27,16 @@ class PointPresenter {
   #previousPointListItem = null;
   #previousPointEditListItem = null;
 
-  constructor(pointsContainer, pointUpdateHandler, modeUpdateHandler) {
+  #offersModel = null;
+  #destinationsModel = null;
+
+  constructor(pointsContainer, pointUpdateHandler, modeUpdateHandler, offersModel, destinationsModel) {
     this.#pointsContainer = pointsContainer;
     this.#pointUpdateHandler = pointUpdateHandler;
     this.#modeUpdateHandler = modeUpdateHandler;
+
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
   }
 
   /**
@@ -42,7 +48,7 @@ class PointPresenter {
 
     this.#pointItem = pointItem;
     this.#pointListItem = new Point(pointItem);
-    this.#pointEditListItem = new EditPoint(pointItem);
+    this.#pointEditListItem = new EditPoint(pointItem, this.#offersModel, this.#destinationsModel);
 
     this.#pointListItem.setRollupButtonClickHandler(() => {
       this.#replacePointToForm();
@@ -75,6 +81,7 @@ class PointPresenter {
 
   resetView = () => {
     if (this.#mode === Mode.EDIT) {
+      this.#pointEditListItem.reset(this.#pointItem);
       this.#replaceFormToPoint();
     }
   }

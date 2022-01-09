@@ -47,7 +47,7 @@ class HeaderMenu extends AbstractView {
 
   #headerMenuClickHandler = (evt) => {
     evt.preventDefault();
-    if (evt.target.tagName !== 'A') {
+    if (evt.target.tagName !== 'A' || evt.target.disabled) {
       return;
     }
     const menuItem = evt.target.dataset.menuItem;

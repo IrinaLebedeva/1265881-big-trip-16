@@ -1,3 +1,10 @@
+const ApiMethod = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
+
 const pointTypes = [
   'taxi',
   'bus',
@@ -18,6 +25,8 @@ const SortType = {
 
 const DEFAULT_SORT_TYPE = SortType.DAY_DESC;
 
+const DATE_RANGE_MINUTES_GAP_MIN = 1;
+
 const UserActionType = {
   UPDATE_POINT: 'UPDATE_POINT',
   ADD_POINT: 'ADD_POINT',
@@ -25,9 +34,15 @@ const UserActionType = {
 };
 
 const ViewUpdateType = {
+  INIT: 'INIT',
   PATCH: 'PATCH',
   MINOR: 'MINOR',
-  MAJOR: 'MAJOR',
+  MAJOR: 'MAJOR'
+};
+
+const ServiceLoadUpdateType = {
+  ERROR: 'ERROR',
+  SUCCESS: 'SUCCESS',
 };
 
 const FilterType = {
@@ -48,12 +63,15 @@ const HeaderMenuItems = {
 };
 
 export {
+  ApiMethod,
+  DATE_RANGE_MINUTES_GAP_MIN,
   DEFAULT_SORT_TYPE,
   emptyPointsListMessageTypes,
   FilterType,
   HeaderMenuItems,
   pointTypes,
   SortType,
+  ServiceLoadUpdateType,
   UserActionType,
   ViewUpdateType,
 };
