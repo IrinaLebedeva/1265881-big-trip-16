@@ -1,6 +1,7 @@
 const ApiMethod = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
 };
 
 const pointTypes = [

@@ -46,17 +46,20 @@ class PointsModel extends AbstractObservable {
     }
   };
 
-  addPoint = (updateType, addedPoint) => {
-    if (addedPoint.id === 0) {
-      addedPoint.id = this.#points.length;
+  addPoint = async (updateType, addedPoint) => {
+    try {
+      const response = await this.#apiService.addPoint(addedPoint);
+      const addedPointFromServer = this.#adaptToClient(response);
+
+      this.#points = [
+        addedPointFromServer,
+        ...this.#points,
+      ];
+
+      this._notify(updateType, addedPointFromServer);
+    } catch (error) {
+      throw new Error('Can\'t add point');
     }
-
-    this.#points = [
-      addedPoint,
-      ...this.#points,
-    ];
-
-    this._notify(updateType, addedPoint);
   }
 
   deletePoint = (updateType, deletedPoint) => {

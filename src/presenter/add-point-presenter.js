@@ -23,6 +23,7 @@ const BLANK_POINT = {
   basePrice: 1,
   dateFrom: dayjs(),
   dateTo: dayjs().add(DATE_RANGE_MINUTES_GAP_MIN, 'minute'),
+  isFavourite: false,
 };
 
 class AddPointPresenter {

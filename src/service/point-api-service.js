@@ -19,14 +19,25 @@ class PointApiService extends ApiService {
     return await ApiService.parseResponse(response);
   }
 
-  #adaptToServer = (point) => {
+  addPoint = async (point) => {
+    const response = await this.load({
+      url: 'points',
+      method: ApiMethod.POST,
+      body: JSON.stringify(this.#adaptToServer(point, true)),
+      headers: new Headers({'Content-Type': 'application/json'}),
+    });
+
+    return await ApiService.parseResponse(response);
+  }
+
+
+  #adaptToServer = (point, isNewPoint = false) => {
     const adaptedPoint = {
       ...point,
-      id: String(point.backendId),
       'base_price': point.basePrice,
       'date_from': dayjs(point.dateFrom).toISOString(),
       'date_to': dayjs(point.dateTo).toISOString(),
-      'is_favorite': point.isFavorite,
+      'is_favorite': point.isFavourite,
       destination: {
         name: point.destination,
         description: point.destinationInfo !== null ? point.destinationInfo.description : null,
@@ -34,7 +45,13 @@ class PointApiService extends ApiService {
       }
     };
 
-    delete adaptedPoint['id'];
+    if (!isNewPoint) {
+      adaptedPoint.id = String(point.backendId);
+      delete adaptedPoint['backendId'];
+    } else {
+      delete adaptedPoint['id'];
+    }
+
     delete adaptedPoint['basePrice'];
     delete adaptedPoint['dateFrom'];
     delete adaptedPoint['dateTo'];
