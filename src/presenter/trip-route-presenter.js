@@ -188,6 +188,8 @@ class TripRoutePresenter {
           this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.ABORTING);
         }
         break;
+      default:
+        throw new Error(`Invalid userActionType value received ${userActionType}`);
     }
   }
 
@@ -204,6 +206,8 @@ class TripRoutePresenter {
         this.#clearTripRoute(true);
         this.#renderTripRoute();
         break;
+      default:
+        throw new Error(`Invalid viewUpdateType value received ${viewUpdateType}`);
     }
   }
 

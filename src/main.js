@@ -50,6 +50,8 @@ const handleServiceState = (viewUpdateType) => {
       break;
     case ServiceLoadUpdateType.SUCCESS:
       break;
+    default:
+      throw new Error(`Invalid viewUpdateType value received ${viewUpdateType}`);
   }
 };
 

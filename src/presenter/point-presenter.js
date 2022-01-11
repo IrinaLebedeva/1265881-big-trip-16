@@ -140,6 +140,8 @@ class PointPresenter {
         this.#pointListItem.shake(resetFormState);
         this.#pointEditListItem.shake(resetFormState);
         break;
+      default:
+        throw new Error(`Invalid state value received ${state}`);
     }
   }
 
