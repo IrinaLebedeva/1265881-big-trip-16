@@ -42,25 +42,17 @@ const unlockHeader = () => {
   });
 };
 
-let isServiceLoadingError = false;
-const handleServiceState = (viewUpdateType) => {
-  switch (viewUpdateType) {
-    case ServiceLoadUpdateType.ERROR:
-      isServiceLoadingError = true;
-      break;
-    case ServiceLoadUpdateType.SUCCESS:
-      break;
-    default:
-      throw new Error(`Invalid viewUpdateType value received ${viewUpdateType}`);
-  }
-};
+const criticalServices = [];
+let loadedCriticalServicesCount = 0;
 
 const pointsModel = new PointsModel(new PointApiService(API_END_POINT, API_AUTHORIZATION));
 const filtersModel = new FiltersModel();
 const offersModel = new OffersModel(new OfferApiService(API_END_POINT, API_AUTHORIZATION));
-offersModel.addObserver(handleServiceState);
+offersModel.addObserver(handleCriticalServiceLoadState);
+criticalServices.push('offersModel');
 const destinationsModel = new DestinationsModel(new DestinationApiService(API_END_POINT, API_AUTHORIZATION));
-destinationsModel.addObserver(handleServiceState);
+destinationsModel.addObserver(handleCriticalServiceLoadState);
+criticalServices.push('destinationsModel');
 
 const tripRoutePresenter = new TripRoutePresenter(eventsContainerElement, pointsModel, filtersModel, offersModel, destinationsModel);
 const filtersPresenter = new FiltersPresenter(filtersContainerElement, filtersModel, pointsModel);
@@ -119,20 +111,25 @@ renderElement(navigationContainerElement, headerMenuComponent);
 filtersPresenter.init();
 lockHeader();
 
-destinationsModel.init().finally(() => {
-  if (isServiceLoadingError) {
-    handleServiceLoadingError();
-  } else {
-    offersModel.init().finally(() => {
-      if (isServiceLoadingError) {
-        handleServiceLoadingError();
-      } else {
+destinationsModel.init();
+offersModel.init();
+
+function handleCriticalServiceLoadState (viewUpdateType) {
+  switch (viewUpdateType) {
+    case ServiceLoadUpdateType.ERROR:
+      handleServiceLoadingError();
+      break;
+    case ServiceLoadUpdateType.SUCCESS:
+      loadedCriticalServicesCount++;
+      if (loadedCriticalServicesCount === criticalServices.length) {
         pointsModel.init().finally(() => {
           unlockHeader();
           removeElement(loadingMessageComponent);
           showTripRouteTab();
         });
       }
-    });
+      break;
+    default:
+      throw new Error(`Invalid viewUpdateType value received ${viewUpdateType}`);
   }
-});
+}
