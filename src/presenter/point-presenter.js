@@ -16,6 +16,11 @@ const Mode = {
   EDIT: 'EDIT',
 };
 
+const State = {
+  SAVING: 'SAVING',
+  DELETING: 'DELETING',
+};
+
 class PointPresenter {
   #mode = Mode.DEFAULT;
   #modeUpdateHandler = null;
@@ -56,14 +61,7 @@ class PointPresenter {
 
     this.#pointListItem.setFavouriteClickHandler(this.#handleFavouriteClick);
 
-    this.#pointEditListItem.setSaveClickHandler((updatedPointItem) => {
-      this.#pointUpdateHandler(
-        UserActionType.UPDATE_POINT,
-        ViewUpdateType.MINOR,
-        updatedPointItem
-      );
-      this.#replaceFormToPoint();
-    });
+    this.#pointEditListItem.setSaveClickHandler(this.#handleSaveClick);
 
     this.#pointEditListItem.setRollupButtonClickHandler(() => {
       this.#pointEditListItem.reset(this.#pointItem);
@@ -96,7 +94,8 @@ class PointPresenter {
       replaceElement(this.#pointListItem, this.#previousPointListItem);
     }
     if (this.#mode === Mode.EDIT) {
-      replaceElement(this.#pointEditListItem, this.#previousPointEditListItem);
+      replaceElement(this.#pointListItem, this.#previousPointEditListItem);
+      this.#mode = Mode.DEFAULT;
     }
 
     removeElement(this.#previousPointListItem);
@@ -104,6 +103,27 @@ class PointPresenter {
 
     this.#previousPointListItem = null;
     this.#previousPointEditListItem = null;
+  }
+
+  setViewState = (state) => {
+    if (this.#mode === Mode.DEFAULT) {
+      return;
+    }
+
+    switch (state) {
+      case State.SAVING:
+        this.#pointEditListItem.updateData({
+          isDisabled: true,
+          isSaving: true,
+        });
+        break;
+      case State.DELETING:
+        this.#pointEditListItem.updateData({
+          isDisabled: true,
+          isDeleting: true,
+        });
+        break;
+    }
   }
 
   #replacePointToForm = () => {
@@ -136,12 +156,15 @@ class PointPresenter {
     );
   }
 
-  #removeEditPoint = () => {
-    removeElement(this.#pointEditListItem);
-  }
+  #handleSaveClick = ((updatedPointItem) => {
+    this.#pointUpdateHandler(
+      UserActionType.UPDATE_POINT,
+      ViewUpdateType.MINOR,
+      updatedPointItem
+    );
+  });
 
   #handleDeleteClick = () => {
-    this.#removeEditPoint();
     this.#pointUpdateHandler(
       UserActionType.DELETE_POINT,
       ViewUpdateType.MINOR,
@@ -151,4 +174,7 @@ class PointPresenter {
   }
 }
 
-export {PointPresenter};
+export {
+  PointPresenter,
+  State,
+};

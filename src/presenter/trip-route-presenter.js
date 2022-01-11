@@ -2,7 +2,10 @@ import {AddPointPresenter} from './add-point-presenter.js';
 import {EmptyPointsListMessage} from '../view/empty-points-list-message.js';
 import {filter} from '../utils/filter.js';
 import {PointsList} from '../view/points-list.js';
-import {PointPresenter} from './point-presenter.js';
+import {
+  PointPresenter,
+  State as PointPresenterViewState
+} from './point-presenter.js';
 import {removeElement, renderElement} from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
 import {
@@ -162,12 +165,15 @@ class TripRoutePresenter {
   #handleViewAction = (userActionType, viewUpdateType, updatePoint) => {
     switch (userActionType) {
       case UserActionType.ADD_POINT:
+        this.#addPointPresenter.setSaving();
         this.#pointsModel.addPoint(viewUpdateType, updatePoint);
         break;
       case UserActionType.UPDATE_POINT:
+        this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.SAVING);
         this.#pointsModel.updatePoint(viewUpdateType, updatePoint);
         break;
       case UserActionType.DELETE_POINT:
+        this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.DELETING);
         this.#pointsModel.deletePoint(viewUpdateType, updatePoint);
         break;
     }

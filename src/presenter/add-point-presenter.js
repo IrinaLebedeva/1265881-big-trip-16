@@ -90,13 +90,19 @@ class AddPointPresenter {
     }
   }
 
+  setSaving = () => {
+    this.#pointEditListItem.updateData({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
   #handleSaveClick = (point) => {
     this.#pointUpdateHandler(
       UserActionType.ADD_POINT,
       ViewUpdateType.MAJOR,
       {id: 0, ...point}
     );
-    this.destroy();
   }
 
   #handleCancelClick = () => {
