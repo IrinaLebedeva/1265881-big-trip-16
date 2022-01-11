@@ -97,6 +97,18 @@ class AddPointPresenter {
     });
   }
 
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#pointEditListItem.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditListItem.shake(resetFormState);
+  }
+
   #handleSaveClick = (point) => {
     this.#pointUpdateHandler(
       UserActionType.ADD_POINT,

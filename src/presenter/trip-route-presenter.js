@@ -162,19 +162,31 @@ class TripRoutePresenter {
     this.#tripPointsPresenter.forEach((presenter) => presenter.resetView());
   }
 
-  #handleViewAction = (userActionType, viewUpdateType, updatePoint) => {
+  #handleViewAction = async (userActionType, viewUpdateType, updatePoint) => {
     switch (userActionType) {
       case UserActionType.ADD_POINT:
         this.#addPointPresenter.setSaving();
-        this.#pointsModel.addPoint(viewUpdateType, updatePoint);
+        try {
+          await this.#pointsModel.addPoint(viewUpdateType, updatePoint);
+        } catch (err) {
+          this.#addPointPresenter.setAborting();
+        }
         break;
       case UserActionType.UPDATE_POINT:
         this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.SAVING);
-        this.#pointsModel.updatePoint(viewUpdateType, updatePoint);
+        try {
+          await this.#pointsModel.updatePoint(viewUpdateType, updatePoint);
+        } catch (err) {
+          this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.ABORTING);
+        }
         break;
       case UserActionType.DELETE_POINT:
         this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.DELETING);
-        this.#pointsModel.deletePoint(viewUpdateType, updatePoint);
+        try {
+          await this.#pointsModel.deletePoint(viewUpdateType, updatePoint);
+        } catch (err) {
+          this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.ABORTING);
+        }
         break;
     }
   }
