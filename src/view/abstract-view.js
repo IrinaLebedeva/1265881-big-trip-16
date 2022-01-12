@@ -1,5 +1,7 @@
 import {createElement} from '../utils/manipulate-dom-element.js';
 
+const SHAKE_ANIMATION_TIMEOUT = 600;
+
 /**
  * @abstract
  */
@@ -29,6 +31,14 @@ class AbstractView {
 
   removeElement() {
     this.#element = null;
+  }
+
+  shake(callback) {
+    this.element.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    setTimeout(() => {
+      this.element.style.animation = '';
+      callback();
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 }
 

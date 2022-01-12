@@ -2,7 +2,10 @@ import {AddPointPresenter} from './add-point-presenter.js';
 import {EmptyPointsListMessage} from '../view/empty-points-list-message.js';
 import {filter} from '../utils/filter.js';
 import {PointsList} from '../view/points-list.js';
-import {PointPresenter} from './point-presenter.js';
+import {
+  PointPresenter,
+  State as PointPresenterViewState
+} from './point-presenter.js';
 import {removeElement, renderElement} from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
 import {
@@ -159,17 +162,34 @@ class TripRoutePresenter {
     this.#tripPointsPresenter.forEach((presenter) => presenter.resetView());
   }
 
-  #handleViewAction = (userActionType, viewUpdateType, updatePoint) => {
+  #handleViewAction = async (userActionType, viewUpdateType, updatePoint) => {
     switch (userActionType) {
       case UserActionType.ADD_POINT:
-        this.#pointsModel.addPoint(viewUpdateType, updatePoint);
+        this.#addPointPresenter.setSaving();
+        try {
+          await this.#pointsModel.addPoint(viewUpdateType, updatePoint);
+        } catch (err) {
+          this.#addPointPresenter.setAborting();
+        }
         break;
       case UserActionType.UPDATE_POINT:
-        this.#pointsModel.updatePoint(viewUpdateType, updatePoint);
+        this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.SAVING);
+        try {
+          await this.#pointsModel.updatePoint(viewUpdateType, updatePoint);
+        } catch (err) {
+          this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.ABORTING);
+        }
         break;
       case UserActionType.DELETE_POINT:
-        this.#pointsModel.deletePoint(viewUpdateType, updatePoint);
+        this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.DELETING);
+        try {
+          await this.#pointsModel.deletePoint(viewUpdateType, updatePoint);
+        } catch (err) {
+          this.#tripPointsPresenter.get(updatePoint.id).setViewState(PointPresenterViewState.ABORTING);
+        }
         break;
+      default:
+        throw new Error(`Invalid userActionType value received ${userActionType}`);
     }
   }
 
@@ -186,6 +206,8 @@ class TripRoutePresenter {
         this.#clearTripRoute(true);
         this.#renderTripRoute();
         break;
+      default:
+        throw new Error(`Invalid viewUpdateType value received ${viewUpdateType}`);
     }
   }
 

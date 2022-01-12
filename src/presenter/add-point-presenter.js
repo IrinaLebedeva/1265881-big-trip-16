@@ -23,7 +23,7 @@ const BLANK_POINT = {
   basePrice: 1,
   dateFrom: dayjs(),
   dateTo: dayjs().add(DATE_RANGE_MINUTES_GAP_MIN, 'minute'),
-  isFavourite: false,
+  isFavorite: false,
 };
 
 class AddPointPresenter {
@@ -90,13 +90,31 @@ class AddPointPresenter {
     }
   }
 
+  setSaving = () => {
+    this.#pointEditListItem.updateData({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#pointEditListItem.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditListItem.shake(resetFormState);
+  }
+
   #handleSaveClick = (point) => {
     this.#pointUpdateHandler(
       UserActionType.ADD_POINT,
       ViewUpdateType.MAJOR,
       {id: 0, ...point}
     );
-    this.destroy();
   }
 
   #handleCancelClick = () => {

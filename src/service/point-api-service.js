@@ -45,7 +45,7 @@ class PointApiService extends ApiService {
       'base_price': point.basePrice,
       'date_from': dayjs(point.dateFrom).toISOString(),
       'date_to': dayjs(point.dateTo).toISOString(),
-      'is_favorite': point.isFavourite,
+      'is_favorite': point.isFavorite,
       destination: {
         name: point.destination,
         description: point.destinationInfo !== null ? point.destinationInfo.description : null,
