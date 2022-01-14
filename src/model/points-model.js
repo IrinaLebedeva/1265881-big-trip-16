@@ -1,7 +1,11 @@
 import {AbstractObservable} from '../utils/abstract-observable.js';
 import dayjs from 'dayjs';
+import {
+  FilterType,
+  ViewUpdateType,
+} from '../const.js';
+import {filter} from '../utils/filter.js';
 import {sortPointsByDateDesc} from '../utils/sort-points.js';
-import {ViewUpdateType} from '../const.js';
 
 const DIFFERENT_MONTHS_DATE_FORMAT = 'D MMM';
 const EQUAL_MONTHS_DATE_FROM_FORMAT = 'MMM D';
@@ -181,6 +185,12 @@ class PointsModel extends AbstractObservable {
       return summaryCost + point.basePrice + offersCost;
     }, 0)
   )
+
+  getFilteredPointsCountInfo = () => ({
+    [FilterType.EVERYTHING]: this.#points.length,
+    [FilterType.PAST]: filter[FilterType.PAST](this.#points).length,
+    [FilterType.FUTURE]: filter[FilterType.FUTURE](this.#points).length,
+  })
 }
 
 export {PointsModel};
