@@ -27,6 +27,7 @@ const BLANK_POINT = {
 };
 
 class AddPointPresenter {
+  #addPointElement = null;
   #pointsContainer = null;
   #pointEditListItem = null;
   #pointUpdateHandler = null;
@@ -59,15 +60,17 @@ class AddPointPresenter {
     };
   }
 
-  init = () => {
+  init = (addPointElement) => {
     if (this.#pointEditListItem !== null) {
       return;
     }
 
+    this.#addPointElement = addPointElement;
     this.#pointEditListItem = new EditPoint(this.#getBlankPoint(), this.#offersModel, this.#destinationsModel);
     this.#pointEditListItem.setSaveClickHandler(this.#handleSaveClick);
     this.#pointEditListItem.setCancelClickHandler(this.#handleCancelClick);
 
+    this.#addPointElementDisable();
     renderElement(this.#pointsContainer, this.#pointEditListItem, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#onEscapeKeyDown);
   }
@@ -79,7 +82,7 @@ class AddPointPresenter {
 
     removeElement(this.#pointEditListItem);
     this.#pointEditListItem = null;
-
+    this.#addPointElementEnable();
     document.removeEventListener('keydown', this.#onEscapeKeyDown);
   }
 
@@ -119,6 +122,14 @@ class AddPointPresenter {
 
   #handleCancelClick = () => {
     this.destroy();
+  }
+
+  #addPointElementDisable = () => {
+    this.#addPointElement.disabled = true;
+  }
+
+  #addPointElementEnable = () => {
+    this.#addPointElement.disabled = false;
   }
 }
 

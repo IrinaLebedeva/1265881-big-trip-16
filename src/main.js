@@ -94,7 +94,7 @@ const showTripRouteTab = () => {
 const handleAddPointClick = (evt) => {
   evt.preventDefault();
   showTripRouteTab();
-  tripRoutePresenter.addPoint();
+  tripRoutePresenter.addPoint(evt.target);
 };
 
 eventAddButtonElement.addEventListener('click', handleAddPointClick);

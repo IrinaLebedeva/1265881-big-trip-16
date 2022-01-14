@@ -224,10 +224,10 @@ class TripRoutePresenter {
     this.#renderTripPoints();
   }
 
-  addPoint() {
+  addPoint(addPointButtonElement) {
     this.#currentSortType = DEFAULT_SORT_TYPE;
     this.#filtersModel.setFilter(ViewUpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#addPointPresenter.init();
+    this.#addPointPresenter.init(addPointButtonElement);
   }
 }
 
