@@ -6,7 +6,11 @@ import {
   PointPresenter,
   State as PointPresenterViewState
 } from './point-presenter.js';
-import {removeElement, renderElement} from '../utils/manipulate-dom-element.js';
+import {
+  removeElement,
+  renderElement,
+  RenderPosition,
+} from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
 import {
   DEFAULT_SORT_TYPE,
@@ -24,6 +28,7 @@ import {
 
 class TripRoutePresenter {
   #addPointPresenter = null;
+  #addPointElement = null;
   #currentSortType = DEFAULT_SORT_TYPE;
   #destinationsModel = null;
   #filtersModel = null;
@@ -73,6 +78,7 @@ class TripRoutePresenter {
     this.#filtersModel.addObserver(this.#handleModelEvent);
 
     this.#renderTripRoute();
+    this.#renderTripPointsContainer();
   }
 
   destroy = () => {
@@ -80,6 +86,7 @@ class TripRoutePresenter {
     this.#filtersModel.removeObserver(this.#handleModelEvent);
 
     this.#clearTripRoute(true);
+    this.#clearTripPointsContainer();
   }
 
   #renderTripRoute = () => {
@@ -97,12 +104,9 @@ class TripRoutePresenter {
       this.#addPointPresenter.destroy();
     }
 
-    if (!this.points.length) {
-      this.#clearEmptyTripRoute();
-    } else {
-      this.#clearSort();
-      this.#clearTripPoints();
-    }
+    this.#clearTripPoints();
+    this.#clearSort();
+    this.#clearEmptyTripRoute();
 
     if (resetSortType) {
       this.#currentSortType = DEFAULT_SORT_TYPE;
@@ -122,7 +126,7 @@ class TripRoutePresenter {
 
   #renderSort = () => {
     this.#sort = new Sort(this.#currentSortType);
-    renderElement(this.#tripRouteContainer, this.#sort);
+    renderElement(this.#tripRouteContainer, this.#sort, RenderPosition.AFTERBEGIN);
     this.#sort.setSortTypeChange(this.#handleSortChange);
   }
 
@@ -130,17 +134,17 @@ class TripRoutePresenter {
     removeElement(this.#sort);
   }
 
+  #renderTripPointsContainer = () => renderElement(this.#tripRouteContainer, this.#pointsList);
+
   #renderTripPoints = () => {
-    renderElement(this.#tripRouteContainer, this.#pointsList);
     for (const point of this.points) {
       this.#renderPoint(point);
     }
   }
 
-  #clearTripPoints = () => {
-    removeElement(this.#pointsList);
-    this.#tripPointsPresenter.forEach((presenter) => presenter.destroy());
-  }
+  #clearTripPointsContainer = () => removeElement(this.#pointsList);
+
+  #clearTripPoints = () => this.#tripPointsPresenter.forEach((presenter) => presenter.destroy());
 
   /**
    * @param {Object} pointItem
@@ -224,10 +228,33 @@ class TripRoutePresenter {
     this.#renderTripPoints();
   }
 
-  addPoint(addPointButtonElement) {
+  addPoint(addPointElement) {
+    this.#addPointElement = addPointElement;
+
     this.#currentSortType = DEFAULT_SORT_TYPE;
     this.#filtersModel.setFilter(ViewUpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#addPointPresenter.init(addPointButtonElement);
+
+    this.#addPointElementDisable();
+    if (!this.points.length) {
+      this.#clearEmptyTripRoute();
+    }
+
+    this.#addPointPresenter.init(this.addPointDestroyHandler);
+  }
+
+  addPointDestroyHandler = () => {
+    if (!this.points.length) {
+      this.#renderEmptyTripRoute();
+    }
+    this.#addPointElementEnable();
+  }
+
+  #addPointElementDisable = () => {
+    this.#addPointElement.disabled = true;
+  }
+
+  #addPointElementEnable = () => {
+    this.#addPointElement.disabled = false;
   }
 }
 

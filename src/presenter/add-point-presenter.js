@@ -27,12 +27,12 @@ const BLANK_POINT = {
 };
 
 class AddPointPresenter {
-  #addPointElement = null;
   #pointsContainer = null;
   #pointEditListItem = null;
   #pointUpdateHandler = null;
 
   #offersModel = null;
+  #onDestroyHandler = null;
   #destinations = null;
   #destinationsModel = null;
 
@@ -60,17 +60,16 @@ class AddPointPresenter {
     };
   }
 
-  init = (addPointElement) => {
+  init = (onDestroyHandler) => {
     if (this.#pointEditListItem !== null) {
       return;
     }
 
-    this.#addPointElement = addPointElement;
+    this.#onDestroyHandler = onDestroyHandler;
     this.#pointEditListItem = new EditPoint(this.#getBlankPoint(), this.#offersModel, this.#destinationsModel);
     this.#pointEditListItem.setSaveClickHandler(this.#handleSaveClick);
     this.#pointEditListItem.setCancelClickHandler(this.#handleCancelClick);
 
-    this.#addPointElementDisable();
     renderElement(this.#pointsContainer, this.#pointEditListItem, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#onEscapeKeyDown);
   }
@@ -82,8 +81,8 @@ class AddPointPresenter {
 
     removeElement(this.#pointEditListItem);
     this.#pointEditListItem = null;
-    this.#addPointElementEnable();
     document.removeEventListener('keydown', this.#onEscapeKeyDown);
+    this.#onDestroyHandler();
   }
 
   #onEscapeKeyDown = (evt) => {
@@ -124,13 +123,6 @@ class AddPointPresenter {
     this.destroy();
   }
 
-  #addPointElementDisable = () => {
-    this.#addPointElement.disabled = true;
-  }
-
-  #addPointElementEnable = () => {
-    this.#addPointElement.disabled = false;
-  }
 }
 
 export {AddPointPresenter};
