@@ -25,6 +25,7 @@ import {
   sortPointsByPriceDesc,
   sortPointsByTimeDesc,
 } from '../utils/sort-points.js';
+import {TripInfo} from '../view/trip-info.js';
 
 class TripRoutePresenter {
   #addPointPresenter = null;
@@ -36,14 +37,17 @@ class TripRoutePresenter {
   #offersModel = null;
   #pointsModel = null;
   #tripRouteContainer = null;
+  #tripSummaryContainer = null;
 
   #emptyPointsListMessage = null;
   #pointsList = new PointsList();
   #sort = null;
   #tripPointsPresenter = new Map();
+  #tripInfo = null;
 
-  constructor(tripRouteContainer, pointsModel, filtersModel, offersModel, destinationsModel) {
+  constructor(tripRouteContainer, tripSummaryContainer, pointsModel, filtersModel, offersModel, destinationsModel) {
     this.#tripRouteContainer = tripRouteContainer;
+    this.#tripSummaryContainer = tripSummaryContainer;
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
     this.#offersModel = offersModel;
@@ -79,6 +83,7 @@ class TripRoutePresenter {
 
     this.#renderTripRoute();
     this.#renderTripPointsContainer();
+    this.#renderTripInfo();
   }
 
   destroy = () => {
@@ -87,6 +92,18 @@ class TripRoutePresenter {
 
     this.#clearTripRoute(true);
     this.#clearTripPointsContainer();
+    this.#clearTripInfo();
+  }
+
+  #renderTripInfo = () => {
+    if (this.#pointsModel.points.length) {
+      this.#tripInfo = new TripInfo(this.#pointsModel.getPointsSummaryInfo());
+      renderElement(this.#tripSummaryContainer, this.#tripInfo, RenderPosition.AFTERBEGIN);
+    }
+  }
+
+  #clearTripInfo = () => {
+    removeElement(this.#tripInfo);
   }
 
   #renderTripRoute = () => {
@@ -201,14 +218,23 @@ class TripRoutePresenter {
     switch (viewUpdateType) {
       case ViewUpdateType.PATCH:
         this.#tripPointsPresenter.get(updatedData.id).init(updatedData);
+        this.#clearTripInfo();
+
+        this.#renderTripInfo();
         break;
       case ViewUpdateType.MINOR:
         this.#clearTripRoute();
+        this.#clearTripInfo();
+
         this.#renderTripRoute();
+        this.#renderTripInfo();
         break;
       case ViewUpdateType.MAJOR:
         this.#clearTripRoute(true);
+        this.#clearTripInfo();
+
         this.#renderTripRoute();
+        this.#renderTripInfo();
         break;
       default:
         throw new Error(`Invalid viewUpdateType value received ${viewUpdateType}`);
