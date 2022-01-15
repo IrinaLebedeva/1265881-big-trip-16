@@ -16,10 +16,11 @@ import {OfferApiService} from './service/offer-api-service.js';
 import {OffersModel} from './model/offers-model.js';
 import {PointApiService} from './service/point-api-service.js';
 import {PointsModel} from './model/points-model.js';
-import {removeElement, renderElement} from './utils/manipulate-dom-element.js';
+import {removeElement, renderElement, RenderPosition} from './utils/manipulate-dom-element.js';
 import {ServiceErrorMessage} from './view/service-error-message.js';
 import {Statistics} from './view/statistics.js';
 import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
+import {TripInfo} from "./view/trip-info";
 
 const headerElement = document.querySelector('.page-header');
 const navigationContainerElement = headerElement.querySelector('.trip-controls__navigation');
@@ -67,6 +68,7 @@ const filtersPresenter = new FiltersPresenter(filtersContainerElement, filtersMo
 const headerMenuComponent = new HeaderMenu();
 
 let statisticsComponent = null;
+let tripInfoComponent = null;
 
 const handleHeaderMenuClick = (headerMenuItem) => {
   switch (headerMenuItem) {
@@ -76,10 +78,13 @@ const handleHeaderMenuClick = (headerMenuItem) => {
       filtersPresenter.destroy();
       filtersPresenter.init();
       removeElement(statisticsComponent);
+      removeElement(tripInfoComponent);
       break;
     case HeaderMenuItems.STATISTICS:
       filtersPresenter.destroy();
       tripRoutePresenter.destroy();
+      tripInfoComponent = new TripInfo(pointsModel.getPointsSummaryInfo());
+      renderElement(tripInfoContainerElement, tripInfoComponent, RenderPosition.AFTERBEGIN);
       statisticsComponent = new Statistics(pointsModel.points);
       renderElement(bodyContainerElement, statisticsComponent);
       break;
@@ -89,6 +94,7 @@ const handleHeaderMenuClick = (headerMenuItem) => {
       filtersPresenter.destroy();
       filtersPresenter.init();
       removeElement(statisticsComponent);
+      removeElement(tripInfoComponent);
   }
 };
 
