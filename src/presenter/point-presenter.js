@@ -4,11 +4,11 @@ import {Point} from '../view/point.js';
 import {
   removeElement,
   renderElement,
-  replaceElement,
+  replaceElement
 } from '../utils/manipulate-dom-element.js';
 import {
   UserActionType,
-  ViewUpdateType,
+  ViewUpdateType
 } from '../const.js';
 
 const Mode = {
@@ -195,5 +195,5 @@ class PointPresenter {
 
 export {
   PointPresenter,
-  State,
+  State
 };

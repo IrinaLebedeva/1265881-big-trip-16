@@ -39,5 +39,5 @@ const getFormattedDatesDiff = (dateFrom, dateTo) => getFormattedDuration(getDura
 export {
   getDuration,
   getFormattedDatesDiff,
-  getFormattedDuration,
+  getFormattedDuration
 };

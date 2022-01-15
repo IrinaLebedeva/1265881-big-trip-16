@@ -13,5 +13,5 @@ const sortPointsByTimeDesc = (pointA, pointB) => {
 export {
   sortPointsByDateDesc,
   sortPointsByPriceDesc,
-  sortPointsByTimeDesc,
+  sortPointsByTimeDesc
 };

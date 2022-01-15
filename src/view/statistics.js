@@ -1,6 +1,6 @@
 import {
   getDuration,
-  getFormattedDuration,
+  getFormattedDuration
 } from '../utils/dates-diff.js';
 import {pointTypes} from '../const.js';
 import {RenderChart} from '../utils/render-chart.js';
