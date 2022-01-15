@@ -16,11 +16,15 @@ import {OfferApiService} from './service/offer-api-service.js';
 import {OffersModel} from './model/offers-model.js';
 import {PointApiService} from './service/point-api-service.js';
 import {PointsModel} from './model/points-model.js';
-import {removeElement, renderElement, RenderPosition} from './utils/manipulate-dom-element.js';
+import {
+  removeElement,
+  renderElement,
+  RenderPosition
+} from './utils/manipulate-dom-element.js';
 import {ServiceErrorMessage} from './view/service-error-message.js';
 import {Statistics} from './view/statistics.js';
 import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
-import {TripInfo} from "./view/trip-info";
+import {TripInfo} from './view/trip-info.js';
 
 const headerElement = document.querySelector('.page-header');
 const navigationContainerElement = headerElement.querySelector('.trip-controls__navigation');
