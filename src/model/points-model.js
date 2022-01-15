@@ -1,9 +1,20 @@
 import {AbstractObservable} from '../utils/abstract-observable.js';
-import {ViewUpdateType} from '../const.js';
+import dayjs from 'dayjs';
+import {
+  FilterType,
+  ViewUpdateType,
+} from '../const.js';
+import {filter} from '../utils/filter.js';
+import {sortPointsByDateDesc} from '../utils/sort-points.js';
+
+const DIFFERENT_MONTHS_DATE_FORMAT = 'D MMM';
+const EQUAL_MONTHS_DATE_FROM_FORMAT = 'MMM D';
+const EQUAL_MONTHS_DATE_TO_FORMAT = 'D';
 
 class PointsModel extends AbstractObservable {
   #apiService = null;
   #points = [];
+  #pointsSortedByDateDesc = [];
 
   constructor(apiService) {
     super();
@@ -113,6 +124,73 @@ class PointsModel extends AbstractObservable {
 
     return adaptedPoint;
   }
+
+  getPointsSummaryInfo = () => {
+    if (!this.points.length) {
+      return {
+        title: '',
+        dates: '',
+        cost: '',
+      };
+    }
+
+    this.#pointsSortedByDateDesc = this.#points.sort(sortPointsByDateDesc);
+    return {
+      title: this.getPointsSummaryTitle(),
+      dates: this.getPointsSummaryDates(),
+      cost: this.getPointsSummaryCost(),
+    };
+  };
+
+  getPointsSummaryTitle = () => {
+    const pointsNumber = this.#pointsSortedByDateDesc.length;
+    let summaryTitle = '';
+    if (pointsNumber === 1) {
+      summaryTitle = this.#pointsSortedByDateDesc[0].destination;
+    } else if (pointsNumber < 4) {
+      const summaryPointTitles = [];
+      this.#pointsSortedByDateDesc.forEach((point) => summaryPointTitles.push(point.destination));
+      summaryTitle = summaryPointTitles.join(' &mdash; ');
+    } else {
+      summaryTitle = `${this.#pointsSortedByDateDesc[0].destination} &mdash; ... &mdash; ${this.#pointsSortedByDateDesc[pointsNumber - 1].destination}`;
+    }
+    return summaryTitle;
+  }
+
+  getPointsSummaryDates = () => {
+    const pointsNumber = this.#pointsSortedByDateDesc.length;
+    const dateFrom = this.#pointsSortedByDateDesc[0].dateFrom;
+    if (pointsNumber === 1) {
+      return dayjs(dateFrom).format(DIFFERENT_MONTHS_DATE_FORMAT);
+    }
+
+    let summaryDates = '';
+    const dateTo = this.#pointsSortedByDateDesc[pointsNumber - 1].dateTo;
+
+    if (dayjs(dateFrom).month() === dayjs(dateTo).month()) {
+      summaryDates = `${dayjs(dateFrom).format(EQUAL_MONTHS_DATE_FROM_FORMAT)}&nbsp;&mdash;&nbsp;${dayjs(dateTo).format(EQUAL_MONTHS_DATE_TO_FORMAT)}`;
+    } else {
+      summaryDates = `${dayjs(dateFrom).format(DIFFERENT_MONTHS_DATE_FORMAT)}&nbsp;&mdash;&nbsp;${dayjs(dateTo).format(DIFFERENT_MONTHS_DATE_FORMAT)}`;
+    }
+
+    return summaryDates;
+  }
+
+  getPointsSummaryCost = () => (
+    this.#points.reduce((summaryCost, point) => {
+      let offersCost = 0;
+      if (point.offers.length) {
+        offersCost = point.offers.reduce((summaryOffersCost, offer) => summaryOffersCost + offer.price, 0);
+      }
+      return summaryCost + point.basePrice + offersCost;
+    }, 0)
+  )
+
+  getFilteredPointsCountInfo = () => ({
+    [FilterType.EVERYTHING]: this.#points.length,
+    [FilterType.PAST]: filter[FilterType.PAST](this.#points).length,
+    [FilterType.FUTURE]: filter[FilterType.FUTURE](this.#points).length,
+  })
 }
 
 export {PointsModel};

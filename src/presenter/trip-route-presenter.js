@@ -6,7 +6,11 @@ import {
   PointPresenter,
   State as PointPresenterViewState
 } from './point-presenter.js';
-import {removeElement, renderElement} from '../utils/manipulate-dom-element.js';
+import {
+  removeElement,
+  renderElement,
+  RenderPosition,
+} from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
 import {
   DEFAULT_SORT_TYPE,
@@ -21,9 +25,11 @@ import {
   sortPointsByPriceDesc,
   sortPointsByTimeDesc,
 } from '../utils/sort-points.js';
+import {TripInfo} from '../view/trip-info.js';
 
 class TripRoutePresenter {
   #addPointPresenter = null;
+  #addPointElement = null;
   #currentSortType = DEFAULT_SORT_TYPE;
   #destinationsModel = null;
   #filtersModel = null;
@@ -31,14 +37,17 @@ class TripRoutePresenter {
   #offersModel = null;
   #pointsModel = null;
   #tripRouteContainer = null;
+  #tripSummaryContainer = null;
 
   #emptyPointsListMessage = null;
   #pointsList = new PointsList();
   #sort = null;
   #tripPointsPresenter = new Map();
+  #tripInfo = null;
 
-  constructor(tripRouteContainer, pointsModel, filtersModel, offersModel, destinationsModel) {
+  constructor(tripRouteContainer, tripSummaryContainer, pointsModel, filtersModel, offersModel, destinationsModel) {
     this.#tripRouteContainer = tripRouteContainer;
+    this.#tripSummaryContainer = tripSummaryContainer;
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
     this.#offersModel = offersModel;
@@ -73,6 +82,8 @@ class TripRoutePresenter {
     this.#filtersModel.addObserver(this.#handleModelEvent);
 
     this.#renderTripRoute();
+    this.#renderTripPointsContainer();
+    this.#renderTripInfo();
   }
 
   destroy = () => {
@@ -80,6 +91,19 @@ class TripRoutePresenter {
     this.#filtersModel.removeObserver(this.#handleModelEvent);
 
     this.#clearTripRoute(true);
+    this.#clearTripPointsContainer();
+    this.#clearTripInfo();
+  }
+
+  #renderTripInfo = () => {
+    if (this.#pointsModel.points.length) {
+      this.#tripInfo = new TripInfo(this.#pointsModel.getPointsSummaryInfo());
+      renderElement(this.#tripSummaryContainer, this.#tripInfo, RenderPosition.AFTERBEGIN);
+    }
+  }
+
+  #clearTripInfo = () => {
+    removeElement(this.#tripInfo);
   }
 
   #renderTripRoute = () => {
@@ -97,12 +121,9 @@ class TripRoutePresenter {
       this.#addPointPresenter.destroy();
     }
 
-    if (!this.points.length) {
-      this.#clearEmptyTripRoute();
-    } else {
-      this.#clearSort();
-      this.#clearTripPoints();
-    }
+    this.#clearTripPoints();
+    this.#clearSort();
+    this.#clearEmptyTripRoute();
 
     if (resetSortType) {
       this.#currentSortType = DEFAULT_SORT_TYPE;
@@ -122,7 +143,7 @@ class TripRoutePresenter {
 
   #renderSort = () => {
     this.#sort = new Sort(this.#currentSortType);
-    renderElement(this.#tripRouteContainer, this.#sort);
+    renderElement(this.#tripRouteContainer, this.#sort, RenderPosition.AFTERBEGIN);
     this.#sort.setSortTypeChange(this.#handleSortChange);
   }
 
@@ -130,17 +151,17 @@ class TripRoutePresenter {
     removeElement(this.#sort);
   }
 
+  #renderTripPointsContainer = () => renderElement(this.#tripRouteContainer, this.#pointsList);
+
   #renderTripPoints = () => {
-    renderElement(this.#tripRouteContainer, this.#pointsList);
     for (const point of this.points) {
       this.#renderPoint(point);
     }
   }
 
-  #clearTripPoints = () => {
-    removeElement(this.#pointsList);
-    this.#tripPointsPresenter.forEach((presenter) => presenter.destroy());
-  }
+  #clearTripPointsContainer = () => removeElement(this.#pointsList);
+
+  #clearTripPoints = () => this.#tripPointsPresenter.forEach((presenter) => presenter.destroy());
 
   /**
    * @param {Object} pointItem
@@ -197,14 +218,23 @@ class TripRoutePresenter {
     switch (viewUpdateType) {
       case ViewUpdateType.PATCH:
         this.#tripPointsPresenter.get(updatedData.id).init(updatedData);
+        this.#clearTripInfo();
+
+        this.#renderTripInfo();
         break;
       case ViewUpdateType.MINOR:
         this.#clearTripRoute();
+        this.#clearTripInfo();
+
         this.#renderTripRoute();
+        this.#renderTripInfo();
         break;
       case ViewUpdateType.MAJOR:
         this.#clearTripRoute(true);
+        this.#clearTripInfo();
+
         this.#renderTripRoute();
+        this.#renderTripInfo();
         break;
       default:
         throw new Error(`Invalid viewUpdateType value received ${viewUpdateType}`);
@@ -224,10 +254,33 @@ class TripRoutePresenter {
     this.#renderTripPoints();
   }
 
-  addPoint() {
+  addPoint(addPointElement) {
+    this.#addPointElement = addPointElement;
+
     this.#currentSortType = DEFAULT_SORT_TYPE;
     this.#filtersModel.setFilter(ViewUpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#addPointPresenter.init();
+
+    this.#addPointElementDisable();
+    if (!this.points.length) {
+      this.#clearEmptyTripRoute();
+    }
+
+    this.#addPointPresenter.init(this.addPointDestroyHandler);
+  }
+
+  addPointDestroyHandler = () => {
+    if (!this.points.length) {
+      this.#renderEmptyTripRoute();
+    }
+    this.#addPointElementEnable();
+  }
+
+  #addPointElementDisable = () => {
+    this.#addPointElement.disabled = true;
+  }
+
+  #addPointElementEnable = () => {
+    this.#addPointElement.disabled = false;
   }
 }
 

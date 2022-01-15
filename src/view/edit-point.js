@@ -377,10 +377,14 @@ class EditPoint extends SmartView {
       return;
     }
     const newType = this.element.querySelector(`#${evt.target.getAttribute('for')}`).value;
-    this.updateData({
+    this.element.querySelectorAll('input[name=event-offer]:checked').forEach((element) => {
+      element.checked = false;
+    });
+    this.updateData(this.#parseDataToPoint({
+      ...this._data,
       type: newType,
       offers: null,
-    });
+    }));
   }
 
   #destinationChangeHandler = (evt) => {
@@ -399,10 +403,11 @@ class EditPoint extends SmartView {
       };
     }
 
-    this.updateData({
+    this.updateData(this.#parseDataToPoint({
+      ...this._data,
       destination: newDestination,
       destinationInfo: newDestinationInfo,
-    });
+    }));
   }
 
   #getDestinationInfoByName = (newDestination) => this.#destinations.find((destination) => destination.name === newDestination);

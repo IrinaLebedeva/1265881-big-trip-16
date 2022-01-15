@@ -25,7 +25,7 @@ class FiltersPresenter {
   init = () => {
     const prevFilterComponent = this.#filterComponent;
 
-    this.#filterComponent = new Filters(this.#filtersModel.filter);
+    this.#filterComponent = new Filters(this.#filtersModel.filter, this.#pointsModel.getFilteredPointsCountInfo());
     this.#filterComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
 
     this.#filtersModel.addObserver(this.#handleModelEvent);

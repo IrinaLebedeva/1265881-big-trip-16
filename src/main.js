@@ -24,6 +24,7 @@ import {TripRoutePresenter} from './presenter/trip-route-presenter.js';
 const headerElement = document.querySelector('.page-header');
 const navigationContainerElement = headerElement.querySelector('.trip-controls__navigation');
 const filtersContainerElement = headerElement.querySelector('.trip-controls__filters');
+const tripInfoContainerElement = headerElement.querySelector('.trip-main');
 
 const mainElement = document.querySelector('.page-main');
 const bodyContainerElement = mainElement.querySelector('.page-body__container');
@@ -54,7 +55,14 @@ const destinationsModel = new DestinationsModel(new DestinationApiService(API_EN
 destinationsModel.addObserver(handleCriticalServiceLoadState);
 criticalServices.push('destinationsModel');
 
-const tripRoutePresenter = new TripRoutePresenter(eventsContainerElement, pointsModel, filtersModel, offersModel, destinationsModel);
+const tripRoutePresenter = new TripRoutePresenter(
+  eventsContainerElement,
+  tripInfoContainerElement,
+  pointsModel,
+  filtersModel,
+  offersModel,
+  destinationsModel
+);
 const filtersPresenter = new FiltersPresenter(filtersContainerElement, filtersModel, pointsModel);
 const headerMenuComponent = new HeaderMenu();
 
@@ -94,7 +102,7 @@ const showTripRouteTab = () => {
 const handleAddPointClick = (evt) => {
   evt.preventDefault();
   showTripRouteTab();
-  tripRoutePresenter.addPoint();
+  tripRoutePresenter.addPoint(evt.target);
 };
 
 eventAddButtonElement.addEventListener('click', handleAddPointClick);
@@ -114,7 +122,7 @@ lockHeader();
 destinationsModel.init();
 offersModel.init();
 
-function handleCriticalServiceLoadState (viewUpdateType) {
+function handleCriticalServiceLoadState(viewUpdateType) {
   switch (viewUpdateType) {
     case ServiceLoadUpdateType.ERROR:
       handleServiceLoadingError();

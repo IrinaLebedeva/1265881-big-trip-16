@@ -32,6 +32,7 @@ class AddPointPresenter {
   #pointUpdateHandler = null;
 
   #offersModel = null;
+  #onDestroyHandler = null;
   #destinations = null;
   #destinationsModel = null;
 
@@ -59,11 +60,12 @@ class AddPointPresenter {
     };
   }
 
-  init = () => {
+  init = (onDestroyHandler) => {
     if (this.#pointEditListItem !== null) {
       return;
     }
 
+    this.#onDestroyHandler = onDestroyHandler;
     this.#pointEditListItem = new EditPoint(this.#getBlankPoint(), this.#offersModel, this.#destinationsModel);
     this.#pointEditListItem.setSaveClickHandler(this.#handleSaveClick);
     this.#pointEditListItem.setCancelClickHandler(this.#handleCancelClick);
@@ -79,8 +81,8 @@ class AddPointPresenter {
 
     removeElement(this.#pointEditListItem);
     this.#pointEditListItem = null;
-
     document.removeEventListener('keydown', this.#onEscapeKeyDown);
+    this.#onDestroyHandler();
   }
 
   #onEscapeKeyDown = (evt) => {
@@ -120,6 +122,7 @@ class AddPointPresenter {
   #handleCancelClick = () => {
     this.destroy();
   }
+
 }
 
 export {AddPointPresenter};
