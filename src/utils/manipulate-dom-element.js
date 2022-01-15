@@ -86,5 +86,5 @@ export {
   removeElement,
   renderElement,
   RenderPosition,
-  replaceElement,
+  replaceElement
 };

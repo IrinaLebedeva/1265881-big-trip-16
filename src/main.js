@@ -1,6 +1,6 @@
 import {
   API_AUTHORIZATION,
-  API_END_POINT,
+  API_END_POINT
 } from './config.js';
 import {DestinationsModel} from './model/destinations-model.js';
 import {DestinationApiService} from './service/destination-api-service.js';
@@ -9,7 +9,7 @@ import {FiltersPresenter} from './presenter/filters-presenter.js';
 import {HeaderMenu} from './view/header-menu.js';
 import {
   HeaderMenuItems,
-  ServiceLoadUpdateType,
+  ServiceLoadUpdateType
 } from './const.js';
 import {LoadingMessage} from './view/loading-message.js';
 import {OfferApiService} from './service/offer-api-service.js';
@@ -61,7 +61,7 @@ const tripRoutePresenter = new TripRoutePresenter(
   pointsModel,
   filtersModel,
   offersModel,
-  destinationsModel
+  destinationsModel,
 );
 const filtersPresenter = new FiltersPresenter(filtersContainerElement, filtersModel, pointsModel);
 const headerMenuComponent = new HeaderMenu();

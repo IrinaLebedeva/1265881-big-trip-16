@@ -37,7 +37,7 @@ const ViewUpdateType = {
   INIT: 'INIT',
   PATCH: 'PATCH',
   MINOR: 'MINOR',
-  MAJOR: 'MAJOR'
+  MAJOR: 'MAJOR',
 };
 
 const ServiceLoadUpdateType = {
@@ -73,5 +73,5 @@ export {
   SortType,
   ServiceLoadUpdateType,
   UserActionType,
-  ViewUpdateType,
+  ViewUpdateType
 };

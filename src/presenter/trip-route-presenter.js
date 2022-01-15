@@ -9,7 +9,7 @@ import {
 import {
   removeElement,
   renderElement,
-  RenderPosition,
+  RenderPosition
 } from '../utils/manipulate-dom-element.js';
 import {Sort} from '../view/sort.js';
 import {
@@ -18,12 +18,12 @@ import {
   FilterType,
   SortType,
   UserActionType,
-  ViewUpdateType,
+  ViewUpdateType
 } from '../const.js';
 import {
   sortPointsByDateDesc,
   sortPointsByPriceDesc,
-  sortPointsByTimeDesc,
+  sortPointsByTimeDesc
 } from '../utils/sort-points.js';
 import {TripInfo} from '../view/trip-info.js';
 

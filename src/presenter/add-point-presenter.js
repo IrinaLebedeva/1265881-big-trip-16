@@ -2,14 +2,14 @@ import dayjs from 'dayjs';
 import {
   DATE_RANGE_MINUTES_GAP_MIN,
   UserActionType,
-  ViewUpdateType,
+  ViewUpdateType
 } from '../const.js';
 import {EditPoint} from '../view/edit-point.js';
 import {isEscapeEvent} from '../utils/detect-event.js';
 import {
   removeElement,
   renderElement,
-  RenderPosition,
+  RenderPosition
 } from '../utils/manipulate-dom-element.js';
 
 const DEFAULT_POINT_TYPE = 'taxi';
