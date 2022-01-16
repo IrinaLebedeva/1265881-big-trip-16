@@ -30,14 +30,10 @@ class PointApiService extends ApiService {
     return await ApiService.parseResponse(response);
   }
 
-  deletePoint = async (point) => {
-    const response = await this.load({
-      url: `points/${point.backendId}`,
-      method: ApiMethod.DELETE,
-    });
-
-    return response;
-  }
+  deletePoint = async (point) => await this.load({
+    url: `points/${point.backendId}`,
+    method: ApiMethod.DELETE,
+  });
 
   #adaptToServer = (point, isNewPoint = false) => {
     const adaptedPoint = {
